@@ -1,0 +1,27 @@
+{
+  "name": "smartfleek-backend",
+  "version": "1.0.0",
+  "description": "API CODE FOR SMARTFLEEK MARKET PROJECT",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techautovity/smartfleek-backend.git"
+  },
+  "author": "Corama Yunus",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/techautovity/smartfleek-backend/issues"
+  },
+  "homepage": "https://github.com/techautovity/smartfleek-backend#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.10.15"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
