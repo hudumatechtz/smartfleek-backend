@@ -47,6 +47,7 @@ const shopSchema = new Schema({
     type: String,
     required: true,
   },
+  registerDate : Date
 });
 
 module.exports = mongoose.model("Shop", shopSchema);

@@ -7,6 +7,10 @@ const customerSchema = new Schema({
     type: String,
     required: true,
   },
+  username: {
+    type: String,
+    required: true,
+  },
   password: {
     type: String,
     required: true,
@@ -28,4 +32,4 @@ const customerSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model('Customer', customerSchema);
+module.exports = mongoose.model("Customer", customerSchema);
