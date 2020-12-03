@@ -16,7 +16,15 @@ const mongooseOptions = {
 
 // MIDDLEWARES
 // app.use(express.urlencoded({extended: false}))
+app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}));
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
+  // res.setHeader('Access-Control-Allow-Credentials', true)
+  next();
+});
 
 app.use('/account', authRoute);
 
