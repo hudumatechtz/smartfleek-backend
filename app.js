@@ -6,15 +6,20 @@ require("dotenv").config();
 
 const PORT = process.env.PORT;
 const MONGODB_URI = process.env.MONGODB_URI;
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
 
 app.use("/", (req, res, next) => {
   res.send("Welcome to Smarfleek Backend");
 });
 
-const mongooseOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
+app.use((err, req, res, next) => {
+  console.log(err);
+  next();
+});
+
 mongoose
   .connect(MONGODB_URI, mongooseOptions)
   .then((result) => {
