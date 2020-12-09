@@ -6,7 +6,10 @@ const multer = require("multer");
 const app = express();
 require("dotenv").config();
 
+// ROUTES IMPORTS
 const authRoute = require("./routes/auth-route");
+const shopRoute = require("./routes/shop-route");
+const productRoute = require("./routes/product-route");
 
 // OBJECT
 const PORT = process.env.PORT;
@@ -54,7 +57,10 @@ app.use(
   multer({ storage: diskStorage, fileFilter: fileFilter }).array("images", 6)
 );
 
+//ROUTES USAGE
 app.use("/account", authRoute);
+app.use("/shop/", shopRoute);
+app.use(productRoute);
 
 app.use("/", (req, res, next) => {
   res.send("Welcome to Smarfleek Backend");
@@ -73,20 +79,20 @@ mongoose
   .connect(MONGODB_URI, mongooseOptions)
   .then((result) => {
     app.listen(PORT, (err) => {
-      if(err){
+      if (err) {
         console.log(err);
         return;
       }
       console.log("Server running on PORT: " + PORT);
-    })
+    });
   })
   .catch((err) => {
     console.log("Error occured to DB");
-    app.listen(PORT, null, err =>{
-      if(err){
+    app.listen(PORT, null, (err) => {
+      if (err) {
         console.log(err);
         return;
       }
-      console.log('Server running without DB');
-  })
-});
+      console.log("Server running without DB");
+    });
+  });
