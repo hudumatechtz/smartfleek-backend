@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 require("dotenv").config();
 
-const authRoute = require('./routes/authRoute');
+const authRoute = require('./routes/auth-route');
 
 const PORT = process.env.PORT;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -32,7 +32,13 @@ app.use("/", (req, res, next) => {
   res.send("Welcome to Smarfleek Backend");
 });
 app.use((err, req, res, next) => {
-  console.log(err);
+  const status = err.statusCode || 500;
+  const message = err.message;
+  if(err != null){
+    res.status(status).json({message: message});
+  }
+  // DISPLAY ERROR MESSAGE DURING DEVELOPMENT
+  console.log(err); 
   next();
 });
 mongoose
