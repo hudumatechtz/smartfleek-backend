@@ -5,6 +5,7 @@ const multer = require("multer");
 
 const app = express();
 require("dotenv").config();
+// mongoose.set('bufferCommands', false);
 
 // ROUTES IMPORTS
 const authRoute = require("./routes/auth-route");
@@ -67,7 +68,7 @@ app.use("/", (req, res, next) => {
 });
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
-  const message = err.message;
+  const message = err._message ? err._message : err.message;
   if (err != null) {
     res.status(status).json({ message: message });
   }
@@ -75,24 +76,26 @@ app.use((err, req, res, next) => {
   console.log(err);
   next();
 });
+
 mongoose
-  .connect(MONGODB_URI, mongooseOptions)
-  .then((result) => {
-    app.listen(PORT, (err) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      console.log("Server running on PORT: " + PORT);
-    });
-  })
-  .catch((err) => {
-    console.log("Error occured to DB");
-    app.listen(PORT, null, (err) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      console.log("Server running without DB");
-    });
+.connect(MONGODB_URI, mongooseOptions)
+.then((result) => {
+  app.listen(PORT, (err) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log("Server running on PORT: " + PORT);
   });
+})
+.catch((err) => {
+  console.log("Error occured to DB");
+  console.log(err);
+  app.listen(PORT, null, (err) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log("Server running without DB");
+  });
+});

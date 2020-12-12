@@ -8,4 +8,7 @@ router.post('/register', authController.postRegister);
 // CUSTOMER
 router.post('/signup', authController.postCustomerRegister);
 
+//LOGIN FOR BOTH
+router.post('/login', authController.postLogin);
+
 module.exports = router;
