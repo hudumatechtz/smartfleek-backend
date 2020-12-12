@@ -2,6 +2,21 @@ const bcrypt = require("bcryptjs");
 const Shop = require("../models/shop");
 const Customer = require("../models/customer");
 
+//HELPER METHODS
+const validatorHelper = (password, hashedPassword, callbak) => {
+  bcrypt
+    .compare(password, hashedPassword)
+    .then((doMatch) => {
+      if (doMatch) {
+        return callbak(doMatch);
+      }
+    })
+    .catch((error) => {
+      // console.log(error);
+      return callback(false);
+    });
+};
+
 // SHOP
 exports.postRegister = (req, res, next) => {
   console.log(req.body);
@@ -104,7 +119,10 @@ exports.postLogin = (req, res, next) => {
                   .status(200)
                   .json({ message: "Either email or password is incorrect" });
               }
-              res.status(201).json({ message: "Shop user exist" });
+              req.session.shopIsLoggedIn = true;
+              req.session.shop = shopUser;
+              req.session.save((err) => {});
+              res.status(201).json({ message: "Shop user exist", success: true });
             });
           })
           .catch((err) => next(err));
@@ -116,23 +134,22 @@ exports.postLogin = (req, res, next) => {
             .status(200)
             .json({ message: "Either email or password is incorrect" });
         }
-        res.status(201).json({ message: "Customer exist" });
+        req.session.customerIsLoggedIn = true;
+        req.session.customer = user;
+        req.session.save((err) => {});
+        res.status(201).json({ message: "Customer exist", success: true });
       });
     })
     .catch((err) => {
       next(err);
     });
 };
-const validatorHelper = (password, hashedPassword, callbak) => {
-  bcrypt
-    .compare(password, hashedPassword)
-    .then((doMatch) => {
-      if (doMatch) {
-        console.log(doMatch);
-        return callbak(doMatch);
-      }
-    })
-    .catch((error) => {
-      return callback(null);
-    });
-};
+
+exports.postLogout = (req, res, next) => {
+  req.session.destroy(err => {
+    if(err) {
+      return res.status(200).json({ message: "LOGOUT NOT SUCESSFUL", success: false});
+    }
+    res.status(200).json({ message: "LOGOUT SUCESSFUL", success: true});
+  })
+}
