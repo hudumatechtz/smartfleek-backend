@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Shop = require("../models/shop");
 const Customer = require("../models/customer");
+const jwt = require("jsonwebtoken");
 
 //HELPER METHODS
 const validatorHelper = (password, hashedPassword, callbak) => {
@@ -10,9 +11,11 @@ const validatorHelper = (password, hashedPassword, callbak) => {
       if (doMatch) {
         return callbak(doMatch);
       }
+      return callbak(doMatch);
     })
     .catch((error) => {
       // console.log(error);
+      console.log(error);
       return callback(false);
     });
 };
@@ -105,7 +108,6 @@ exports.postLogin = (req, res, next) => {
       if (!user) {
         Shop.findOne({ email: email })
           .then((shopUser) => {
-            // console.log(shopUser);
             if (!shopUser) {
               const error = new Error(
                 "User with " + email + " do not exist, consider register"
@@ -119,10 +121,21 @@ exports.postLogin = (req, res, next) => {
                   .status(200)
                   .json({ message: "Either email or password is incorrect" });
               }
-              req.session.shopIsLoggedIn = true;
-              req.session.shop = shopUser;
-              req.session.save((err) => {});
-              res.status(201).json({ message: "Shop user exist", success: true });
+              // req.session.shopIsLoggedIn = true;
+              // req.session.shop = shopUser;
+              // req.session.save((err) => {});
+              const token = jwt.sign({
+                email: email,
+                shopId: shopUser._id
+              }, "secureshopline", {
+                expiresIn: "1hr",
+              });
+              res.status(201).json({
+                message: "Shop user exist",
+                success: true,
+                token: token,
+                shopId: shopUser._id.toString(),
+              });
             });
           })
           .catch((err) => next(err));
@@ -134,10 +147,23 @@ exports.postLogin = (req, res, next) => {
             .status(200)
             .json({ message: "Either email or password is incorrect" });
         }
-        req.session.customerIsLoggedIn = true;
-        req.session.customer = user;
-        req.session.save((err) => {});
-        res.status(201).json({ message: "Customer exist", success: true });
+        // req.session.customerIsLoggedIn = true;
+        // req.session.customer = user;
+        // req.session.save((err) => {});
+        const token = jwt.sign(
+          {
+            email: email,
+            customerId: user._id,
+          },
+          "secureCustomerLine",
+          { expiresIn: "1hr" }
+        );
+        res.status(201).json({
+          message: "Customer exist",
+          success: true,
+          token: token,
+          customerId: user._id.toString(),
+        });
       });
     })
     .catch((err) => {
@@ -146,10 +172,12 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postLogout = (req, res, next) => {
-  req.session.destroy(err => {
-    if(err) {
-      return res.status(200).json({ message: "LOGOUT NOT SUCESSFUL", success: false});
+  req.session.destroy((err) => {
+    if (err) {
+      return res
+        .status(200)
+        .json({ message: "LOGOUT NOT SUCCESSFUL", success: false });
     }
-    res.status(200).json({ message: "LOGOUT SUCESSFUL", success: true});
-  })
-}
+    res.status(200).json({ message: "LOGOUT SUCCESSFUL", success: true });
+  });
+};

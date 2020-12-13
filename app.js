@@ -2,16 +2,16 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const multer = require("multer");
-const session = require("express-session");
-const mongoDbStore = require("connect-mongodb-session")(session);
+// const session = require("express-session");
+// const mongoDbStore = require("connect-mongodb-session")(session);
 
 const app = express();
 require("dotenv").config();
 // mongoose.set('bufferCommands', false);
 
 // MODELS
-const Customer = require("./models/customer");
-const Shop = require("./models/shop");
+// const Customer = require("./models/customer");
+// const Shop = require("./models/shop");
 
 // ROUTES IMPORTS
 const authRoute = require("./routes/auth-route");
@@ -45,13 +45,13 @@ const diskStorage = multer.diskStorage({
   },
 });
 const images = [];
-const store = new mongoDbStore(
-  {
-    uri: MONGODB_URI,
-    collection: "session",
-  },
-  (err) => {}
-);
+// const store = new mongoDbStore(
+//   {
+//     uri: MONGODB_URI,
+//     collection: "session",
+//   },
+//   (err) => {}
+// );
 
 // MIDDLEWARES
 // app.use(express.urlencoded({extended: false}))
@@ -70,32 +70,32 @@ app.use((req, res, next) => {
 app.use(
   multer({ storage: diskStorage, fileFilter: fileFilter }).array("images", 6)
 );
-app.use(
-  session({
-    secret: "callback wizard",
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  })
-);
-app.use((req, res, next) => {
-  if (!req.session.customer && !req.session.shop) {
-    return next();
-  }
-  Customer.findById(req.session.customer._id)
-    .then((customer) => {
-      if (!customer) {
-        Shop.findById(req.session.shop._id).then((shop) => {
-          if (!shop) next();
-          req.shop = shop;
-          next();
-        });
-      }
-      req.customer = customer;
-      next();
-    })
-    .catch((err) => {next(err);});
-});
+// app.use(
+//   session({
+//     secret: "callback wizard",
+//     resave: false,
+//     saveUninitialized: false,
+//     store: store,
+//   })
+// );
+// app.use((req, res, next) => {
+//   if (!req.session.customer && !req.session.shop) {
+//     return next();
+//   }
+//   Customer.findById(req.session.customer._id)
+//     .then((customer) => {
+//       if (!customer) {
+//         Shop.findById(req.session.shop._id).then((shop) => {
+//           if (!shop) next();
+//           req.shop = shop;
+//           next();
+//         });
+//       }
+//       req.customer = customer;
+//       next();
+//     })
+//     .catch((err) => {next(err);});
+// });
 
 //ROUTES USAGE
 app.use("/account", authRoute);
