@@ -124,16 +124,21 @@ exports.postLogin = (req, res, next) => {
               // req.session.shopIsLoggedIn = true;
               // req.session.shop = shopUser;
               // req.session.save((err) => {});
-              const token = jwt.sign({
-                email: email,
-                shopId: shopUser._id
-              }, "secureshopline", {
-                expiresIn: "1hr",
-              });
+              const token = jwt.sign(
+                {
+                  email: email,
+                  shopId: shopUser._id,
+                },
+                "secureShopLine",
+                {
+                  expiresIn: "1hr",
+                }
+              );
               res.status(201).json({
                 message: "Shop user exist",
                 success: true,
                 token: token,
+                email: shopUser.email,
                 shopId: shopUser._id.toString(),
               });
             });
@@ -162,6 +167,7 @@ exports.postLogin = (req, res, next) => {
           message: "Customer exist",
           success: true,
           token: token,
+          email: user.email,
           customerId: user._id.toString(),
         });
       });
