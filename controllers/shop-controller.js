@@ -12,12 +12,11 @@ exports.addProduct = (req, res, next) => {
   // const unit = req.body.unit;
   // const saleable = req.body.saleable;
   // const stockable = req.body.stockable;
-  const image = req.body.file;
+  const image = req.file;
   const createdBy = req.body.createdBy; //PASS THE SHOP OBJECT
   const category = req.body.category;
   const catalog = req.body.catalog;
-  console.log(req.body);
-  return console.log(req.body.file);
+  console.log(req.file);
   if(!productName || !retailPrice || !quantity || !image || !category || !catalog){
     const error = new Error("Product form has errors, correct them");
     error.statusCode = 422;
