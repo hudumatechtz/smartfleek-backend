@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const multer = require("multer");
+const cookieParser = require("cookie-parser");
+const path = require("path");
 // const session = require("express-session");
 // const mongoDbStore = require("connect-mongodb-session")(session);
 
@@ -25,11 +27,12 @@ const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 };
+
 const fileFilter = (req, file, cb) => {
   if (
-    file.mimeType === "images/jpeg" ||
-    file.mimeType === "images/png" ||
-    file.mimeType === "images/jpg"
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg"
   ) {
     return cb(null, true);
   }
@@ -41,7 +44,7 @@ const diskStorage = multer.diskStorage({
     cb(null, "assets/images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString + "-" + file.originalname);
+    cb(null, new Date().toISOString() + "-" + file.originalname);
   },
 });
 const images = [];
@@ -56,7 +59,12 @@ const images = [];
 // MIDDLEWARES
 // app.use(express.urlencoded({extended: false}))
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  "/assets/images",
+  express.static(path.join(__dirname + "assets/images"))
+);
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "*");
@@ -68,7 +76,8 @@ app.use((req, res, next) => {
   next();
 });
 app.use(
-  multer({ storage: diskStorage, fileFilter: fileFilter }).array("images", 6)
+  multer({ storage: diskStorage, fileFilter: fileFilter }).single("image")
+  // multer({ storage: diskStorage, fileFilter: fileFilter }).array("images", 6)
 );
 // app.use(
 //   session({

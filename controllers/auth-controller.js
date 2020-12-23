@@ -22,7 +22,7 @@ const validatorHelper = (password, hashedPassword, callbak) => {
 
 // SHOP
 exports.postRegister = (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const email = req.body.email;
