@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
   const token = authHeader.split(" ")[1];
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, "shopSecureLine");
+    decodedToken = jwt.verify(token, "secureShopLine");
   } catch (error) {
     error.statusCode = 500;
     throw error;

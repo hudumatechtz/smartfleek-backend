@@ -30,27 +30,20 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    createdBy: {
-      shop: {
-        email: {
-          type: String,
-          required: true,
-        },
-        shopId: {
-          type: Schema.Types.ObjectId,
-          required: true,
-          ref: "Shop",
-        },
+    shop: {
+      email: {
+        type: String,
+        required: true,
+      },
+      shopId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Shop",
       },
     },
-    images: [
-      {
-        imageUrl: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+    images: {
+      imagePaths: [],
+    },
     wholeSalePrice: {
       type: String,
       required: false,
@@ -76,4 +69,14 @@ const productSchema = new Schema(
   },
   { timestamps: true }
 );
+// productSchema.methods.addToImagesArray = function(imagePaths){
+//   const imagePathsList = [...this.images.imagePaths];
+//   imagePaths.forEach(element => {
+//     imagePathsList.push({
+//       imagePath : element
+//     });
+//   });
+//   const updatedImagePaths = { images : imagePathsList};
+//   return updatedImagePaths;
+// };
 module.exports = mongoose.model("Product", productSchema);

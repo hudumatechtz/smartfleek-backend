@@ -12,6 +12,7 @@ exports.addProduct = (req, res, next) => {
   // const unit = req.body.unit;
   // const saleable = req.body.saleable;
   // const stockable = req.body.stockable;
+  // console.log(req.shopEmail + "\n" + req.shopId);
   const image = req.file;
   const category = req.body.category;
   const catalog = req.body.catalog;
@@ -29,17 +30,10 @@ exports.addProduct = (req, res, next) => {
     quantity: quantity,
     description: description,
     // images: [], //IMAGE ARRAY
-    image: paths,
+    images: {imagePaths : paths},
     category: category,
     catalog: catalog,
-    createdBy: { shop: req.shopEmail, shopId: req.shopId}, 
-    //SHOP OBJECT
-    //  ADVANCED CONFIGURATIONS DEFAULTS VALUES ARE SET    
-    // wholeSalePrice: wholeSalePrice,
-    // wholeSaleQuantity: wholeSaleQuantity,
-    // unit: unit,
-    // saleable: saleable,
-    // stockable: stockable,
+    shop: {email : req.shopEmail, shopId: req.shopId}
   });
   product
     .save()
