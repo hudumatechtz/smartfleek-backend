@@ -73,31 +73,46 @@ exports.postCustomerRegister = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const username = req.body.username;
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPassword) => {
-      const customer = new Customer({
-        email: email,
-        username: username,
-        password: hashedPassword,
-        cart: { items: [] },
-      });
-      return customer.save();
-    })
-    .then((result) => {
-      if (!result) {
-        const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
-        error.statusCode = 500;
-        throw error;
+  Customer.findOne({ email: email })
+    .then((customer) => {
+      if (customer) {
+        return res.json({
+          message: "CUSTOMER ALREADY EXIST USE A DIFFERENT EMAIL",
+          success: false,
+        });
+      } else {
+        bcrypt
+          .hash(password, 12)
+          .then((hashedPassword) => {
+            const customer = new Customer({
+              email: email,
+              username: username,
+              password: hashedPassword,
+              cart: { items: [] },
+            });
+            return customer.save();
+          })
+          .then((result) => {
+            if (!result) {
+              const error = new Error(
+                "ERROR OCCURED | COULD NOT BE REGISTERED"
+              );
+              error.statusCode = 500;
+              throw error;
+            }
+            res
+              .status(200)
+              .json({ message: "CUSTOMER REGISTERED", success: true });
+          })
+          .catch((err) => {
+            next(err);
+            // res
+            //   .status(500)
+            //   .json({ message: "ERROR OCCURED | COULD NOT BE REGISTERED" });
+          });
       }
-      res.status(200).json({ message: "CUSTOMER REGISTERED" });
     })
-    .catch((err) => {
-      next(err);
-      // res
-      //   .status(500)
-      //   .json({ message: "ERROR OCCURED | COULD NOT BE REGISTERED" });
-    });
+    .catch((err) => next(err));
 };
 
 exports.postLogin = (req, res, next) => {

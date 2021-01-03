@@ -13,7 +13,6 @@ exports.addProduct = (req, res, next) => {
   // const saleable = req.body.saleable;
   // const stockable = req.body.stockable;
   const image = req.file;
-  const createdBy = req.body.createdBy; //PASS THE SHOP OBJECT
   const category = req.body.category;
   const catalog = req.body.catalog;
   console.log(req.file);
@@ -33,7 +32,8 @@ exports.addProduct = (req, res, next) => {
     image: paths,
     category: category,
     catalog: catalog,
-    createdBy: {}, //SHOP OBJECT
+    createdBy: { shop: req.shopEmail, shopId: req.shopId}, 
+    //SHOP OBJECT
     //  ADVANCED CONFIGURATIONS DEFAULTS VALUES ARE SET    
     // wholeSalePrice: wholeSalePrice,
     // wholeSaleQuantity: wholeSaleQuantity,

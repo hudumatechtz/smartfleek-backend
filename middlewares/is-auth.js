@@ -23,5 +23,6 @@ module.exports = (req, res, next) => {
     throw error;
   }
   req.shopId = decodedToken.shopId;
+  req.shopEmail = decodedToken.email;
   next();
 };
