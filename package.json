@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "API CODE FOR SMARTFLEEK MARKET PROJECT",
   "main": "app.js",
+  "engines": {},
   "scripts": {
     "start": "nodemon app.js"
   },
