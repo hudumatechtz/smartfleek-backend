@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
+const compression = require('compression');
 const path = require("path");
 // const session = require("express-session");
 // const mongoDbStore = require("connect-mongodb-session")(session);
@@ -58,13 +59,11 @@ const images = [];
 
 // MIDDLEWARES
 // app.use(express.urlencoded({extended: false}))
+app.use(compression());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(
-  "/assets/images",
-  express.static(path.join(__dirname + "assets/images"))
-);
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "*");
@@ -111,9 +110,9 @@ app.use("/account", authRoute);
 app.use("/shop/", shopRoute);
 app.use(productRoute);
 
-app.use("/", (req, res, next) => {
-  res.send("Welcome to Smarfleek Backend");
-});
+// app.use("/", (req, res, next) => {
+//   res.send("Welcome to Smarfleek Backend");
+// });
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
   const message = err._message ? err._message : err.message;
