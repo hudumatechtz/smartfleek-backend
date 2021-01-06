@@ -18,7 +18,7 @@ const customerSchema = new Schema({
   cart: {
     items: [
       {
-        product: {
+        productId: {
           type: Schema.Types.ObjectId,
           ref: "Product",
           required: true,
@@ -31,5 +31,37 @@ const customerSchema = new Schema({
     ],
   },
 });
-
+customerSchema.methods.addToCart = function (product, quantity = 1) {
+  const cartProductIndex = this.cart.items.findIndex(
+    (cp) => cp.productId.toString() === product._id.toString()
+  );
+  const updatedProductsItems = [...this.cart.items];
+  let newQuantity = quantity;
+  if (cartProductIndex >= 0) {
+    newQuantity = this.cart.items[cartProductIndex].quantity + newQuantity;
+    updatedProductsItems[cartProductIndex].quantity = newQuantity;
+    console.log(newQuantity);
+  } else {
+    updatedProductsItems.push({
+      productId: product._id,
+      quantity: newQuantity,
+    });
+  }
+  const updatedCart = {
+    items: updatedProductsItems,
+  };
+  this.cart = updatedCart;
+  return this.save();
+};
+customerSchema.methods.clearCart = function(){
+  this.cart = {items : []};
+  return this.save();
+}
+customerSchema.methods.removeCart = function(productId){
+  const updatedCartItems = this.cart.items.filter(item => {
+    return item.productId.toString() != productId.toString();
+  })
+  this.cart.items = updatedCartItems;
+  return this.save();
+}
 module.exports = mongoose.model("Customer", customerSchema);

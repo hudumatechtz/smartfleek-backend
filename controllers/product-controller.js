@@ -1,4 +1,6 @@
+const { json } = require("body-parser");
 const mongoose = require("mongoose");
+const Customer = require("../models/customer");
 const Product = require("../models/product");
 
 exports.getProducts = (req, res, next) => {
@@ -33,6 +35,23 @@ exports.getProduct = (req, res, next) => {
   }).catch(err => next(err));
 }
 
-exports.addToCart = (req, res, next) => {};
+exports.addToCart = (req, res, next) => {
+  const productId = req.body.productId;
+  const quantity = req.body.quantity;
+  Product.findById(productId.toString())
+  .then(
+    result => {
+      if(!result){
+        return res.status(200).json({message: "PRODUCT COULD NOT BE FOUND"});
+      }
+      // console.log(result);
+      req.customer.addToCart(result, quantity)
+      .then(
+        result => res.status(200).json({message : "PRODUCT ADDED TO CART"})
+      )
+      .catch(err => { throw err});
+    }
+  ).catch(err => next(err));
+};
 
 exports.removeProductFromCart = (req, res, next) => {};
