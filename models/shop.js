@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const shopSchema = new Schema({
+const shopModel = new Schema({
   // PERSONAL DETAILS
   firstName: {
     type: String,
@@ -50,4 +50,4 @@ const shopSchema = new Schema({
   registerDate : Date
 });
 
-module.exports = mongoose.model("Shop", shopSchema);
+module.exports = mongoose.model("Shop", shopModel);

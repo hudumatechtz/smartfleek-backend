@@ -54,4 +54,6 @@ exports.addToCart = (req, res, next) => {
   ).catch(err => next(err));
 };
 
-exports.removeProductFromCart = (req, res, next) => {};
+exports.removeProductFromCart = (req, res, next) => {
+  
+};
