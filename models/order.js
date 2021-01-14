@@ -16,6 +16,17 @@ const orderModel = new Schema({
       quantity: { type: Number, required: true },
     },
   ],
+  shop: {
+    email: {
+      type: String,
+      required: true,
+    },
+    shopId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "Shop",
+    },
+  },
 });
 
 module.exports = mongoose.model("Order", orderModel);
