@@ -16,7 +16,9 @@ exports.postOrder = async (req, res, next) => {
       return { quantity: i.quantity, product: { ...i.productId._doc } };
     });
     const order = new Order({
-      "customer.customerEmail": req.email,
+      "customer.customerEmail": req.customerEmail,
+      "customer.customerId": req.customerId,
+      // Convert products array to objects
       products: products,
       // SHOP DETAILS
     });

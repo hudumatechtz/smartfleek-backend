@@ -98,11 +98,11 @@ exports.getProductsByCategory = async (req, res, next) => {
     if (products.length <= 0) {
       return res
         .status(200)
-        .json({ message: "PRODUCTS GATEGORY COULD NOT BE FETCHED" });
+        .json({ message: "PRODUCTS CATEGORY COULD NOT BE FETCHED" });
     }
     res
       .status(201)
-      .json({ message: "PRODUCTS GATEGORY FETCHED", products: products });
+      .json({ message: "PRODUCTS CATEGORY FETCHED", products: products });
   } catch (error) {
     next(error);
   }
