@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
-const compression = require('compression');
+const compression = require("compression");
 const path = require("path");
 // const session = require("express-session");
 // const mongoDbStore = require("connect-mongodb-session")(session);
@@ -45,7 +45,16 @@ const diskStorage = multer.diskStorage({
     cb(null, "assets/images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(
+      null,
+      "IMG" +
+        "-" +
+        new Date().toISOString().split(":").join("").split("-").join("") +
+        "-" +
+        "SMARTFLEEK" +
+        Math.floor(1000 + Math.random() * 9000) +
+        file.originalname.substring(file.originalname.indexOf("."))
+    );
   },
 });
 const images = [];
@@ -119,7 +128,7 @@ app.use((err, req, res, next) => {
   const message = err._message ? err._message : err.message;
   const notSuccess = err.notSuccess ? err.notSuccess : false;
   if (err != null) {
-    res.status(status).json({ message: message, notSuccess: notSuccess});
+    res.status(status).json({ message: message, notSuccess: notSuccess });
   }
   // DISPLAY ERROR MESSAGE DURING DEVELOPMENT
   console.log(err);
