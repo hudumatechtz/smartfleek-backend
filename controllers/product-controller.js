@@ -12,7 +12,7 @@ exports.getProducts = (req, res, next) => {
         error.statusCode = 500;
         throw error;
       }
-    //   console.log(products);
+      //   console.log(products);
       res.status(201).json({ products: products });
     })
     .catch((err) => next(err));
@@ -23,37 +23,48 @@ exports.getProduct = (req, res, next) => {
   // id = (hex.test(id))? ObjectId(id) : id;
   // console.log(id);
   // console.log(id);
-  Product.findOne({_id: id.toString()})
-  .then(product => {
-    if(!product){
-      const error = new Error('PRODUCT FAILED TO FETCH');
-      error.statusCode = 503;
-      throw error;
-    }
-    res.status(201).json({product: product, message : 'PRODUCT OBTAINED'});
-
-  }).catch(err => next(err));
-}
+  Product.findOne({ _id: id.toString() })
+    .then((product) => {
+      if (!product) {
+        const error = new Error("PRODUCT FAILED TO FETCH");
+        error.statusCode = 503;
+        throw error;
+      }
+      res.status(201).json({ product: product, message: "PRODUCT OBTAINED" });
+    })
+    .catch((err) => next(err));
+};
 
 exports.addToCart = (req, res, next) => {
   const productId = req.body.productId;
   const quantity = req.body.quantity;
   Product.findById(productId.toString())
-  .then(
-    result => {
-      if(!result){
-        return res.status(200).json({message: "PRODUCT COULD NOT BE FOUND"});
+    .then((result) => {
+      if (!result) {
+        return res.status(200).json({ message: "PRODUCT COULD NOT BE FOUND" });
       }
       // console.log(result);
-      req.customer.addToCart(result, quantity)
-      .then(
-        result => res.status(200).json({message : "PRODUCT ADDED TO CART"})
-      )
-      .catch(err => { throw err});
-    }
-  ).catch(err => next(err));
+      req.customer
+        .addToCart(result, quantity)
+        .then((result) =>
+          res.status(200).json({ message: "PRODUCT ADDED TO CART" })
+        )
+        .catch((err) => {
+          throw err;
+        });
+    })
+    .catch((err) => next(err));
 };
 
-exports.removeProductFromCart = (req, res, next) => {
-  
+exports.searchProduct = async (req, res, next) => {
+  const searchQuery = req.params.seach_query;
+  try {
+    const regex = new RegExp(searchQuery, i);
+    const noOfProducts = await Product.estimatedDocumentCount();
+    const products = await Product.find({ product: { $regex: regex } });
+    
+  } catch (error) {
+    next(error);
+  }
 };
+exports.removeProductFromCart = (req, res, next) => {};
