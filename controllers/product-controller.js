@@ -1,5 +1,3 @@
-const { json } = require("body-parser");
-const mongoose = require("mongoose");
 const Customer = require("../models/customer");
 const Product = require("../models/product");
 
@@ -38,6 +36,7 @@ exports.getProduct = (req, res, next) => {
 exports.addToCart = (req, res, next) => {
   const productId = req.body.productId;
   const quantity = req.body.quantity;
+  console.log(req.customer);
   Product.findById(productId.toString())
     .then((result) => {
       if (!result) {
@@ -55,16 +54,56 @@ exports.addToCart = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
-
-exports.searchProduct = async (req, res, next) => {
-  const searchQuery = req.params.seach_query;
+exports.removeProductFromCart = async (req, res, next) => {
+  const { productId } = req.params;
+  console.log(productId);
   try {
-    const regex = new RegExp(searchQuery, i);
-    const noOfProducts = await Product.estimatedDocumentCount();
-    const products = await Product.find({ product: { $regex: regex } });
-    
+    const result = await req.customer.removeCart(productId);
+    console.log(result);
+    res.status(200).json({ message: "PRODUCT WAS DELETED", result: result });
   } catch (error) {
     next(error);
   }
 };
-exports.removeProductFromCart = (req, res, next) => {};
+
+exports.searchProduct = async (req, res, next) => {
+  const searchQuery = req.params.seach_query;
+  try {
+    const regex = new RegExp(searchQuery, "i");
+    const noOfProducts = await Product.estimatedDocumentCount({
+      product: { $regex: regex },
+    });
+    // console.log(noOfProducts);
+    const products = await Product.find({ product: { $regex: regex } });
+    // if(!products){
+    //   throw new Error('PRODUCT')
+    // }
+    if (products.length <= 0) {
+      return res.status(200).json({
+        message: "PRODUCTS ARE NOT AVAILABLE IN THE MARKET CURRENTLY",
+      });
+    }
+
+    res
+      .status(201)
+      .json({ message: "PRODUCTS EXIST IN THE MARKET", products: products });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getProductsByCategory = async (req, res, next) => {
+  const category = req.params.category;
+  try {
+    const products = await Product.find({ category: category });
+    if (products.length <= 0) {
+      return res
+        .status(200)
+        .json({ message: "PRODUCTS GATEGORY COULD NOT BE FETCHED" });
+    }
+    res
+      .status(201)
+      .json({ message: "PRODUCTS GATEGORY FETCHED", products: products });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -41,6 +41,7 @@ module.exports = (req, res, next) => {
         // return res.status(401).json({notSuccess: false});
       }
       req.customer = result;
+      // console.log("the customer is %s", req.customer);
     }
   )
   next();
