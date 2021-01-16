@@ -120,9 +120,10 @@ app.use("/account", authRoute);
 app.use("/shop/", shopRoute);
 app.use(productRoute);
 
-// app.use("/", (req, res, next) => {
-//   res.send("Welcome to Smarfleek Backend");
-// });
+app.use("/", (req, res, next) => {
+  res.send("Welcome to Smarfleek Backend");
+  next();
+});
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
   const message = err._message ? err._message : err.message;
