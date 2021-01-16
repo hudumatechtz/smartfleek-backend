@@ -3,7 +3,7 @@ const router = express.Router();
 
 const productController = require("../controllers/product-controller");
 const isAuth = require("../middlewares/is-auth-customer");
-const paymentController = require('../controllers/payment-controller');
+const paymentController = require("../controllers/payment-controller");
 
 router.get("/products", productController.getProducts);
 
@@ -21,5 +21,5 @@ router.delete(
   productController.removeProductFromCart
 );
 
-router.post('/checkout', paymentController.checkoutSingleProduct);
+router.post("/checkout", isAuth, paymentController.checkoutSingleProduct);
 module.exports = router;

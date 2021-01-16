@@ -21,19 +21,27 @@ exports.checkoutSingleProduct = async (req, res, next) => {
   const customerEmail = req.customerEmail;
   try {
     const product = await Product.findOne({ _id: productId.toString() });
-    if (product <= 0) {
+    if (!product) {
       return res
         .status(200)
         .json({ message: "PRODUCT CHECKOUT COULD NOT BE PROCESSED" });
     }
     const { email, shopId } = product.shop;
-    const products = [...product];
-    order = await new Order({
+    const products = [];
+    console.log(product);
+    products.push(product);
+    const order = await new Order({
       customer: { customerId: customerId, customerEmail: customerEmail },
       products: products,
-    //   shop: { email: product.email, shopId: product.shopId },
+      //   shop: { email: product.email, shopId: product.shopId },
     });
-    res.json({ shopEmail: email, shopId: shopId });
+    const savedOrder = await order.save();
+    if(!savedOrder){
+        return;
+    }
+    res
+      .status(200)
+      .json({ message: "CHECKOUT WAS SUCCESSFULLY", order: savedOrder });
   } catch (error) {
     next(error);
   }
