@@ -121,7 +121,7 @@ app.use("/shop/", shopRoute);
 app.use(productRoute);
 
 app.use("/", (req, res, next) => {
-  res.send("Welcome to Smarfleek Backend");
+  res.status(200).json({api : "Welcome to Smarfleek Backend"});
   next();
 });
 app.use((err, req, res, next) => {
