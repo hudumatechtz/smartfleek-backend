@@ -1,6 +1,66 @@
 const Customer = require("../models/customer");
 const Product = require("../models/product");
+const Category = require("../models/category");
 
+exports.addCategory = async (req, res, next) => {
+  // const { category } = req.body;
+  try {
+    const newCategories = [
+      "general",
+      "mens",
+      "women",
+      "children",
+      "media",
+      "clothes",
+      "electronics",
+      "household",
+      "artsandcrafts",
+      "furniture",
+      "smartphone",
+      "hairandbeauty",
+      "interior",
+      "exterior",
+      "pestcontrol",
+      "travelandtourism",
+      "television",
+      "laptop",
+      "footwear",
+      "handbags",
+      "transportation",
+      "durables",
+      "perishables",
+      "vegetables",
+      "food",
+    ];
+    const categories = await new Category({
+      categories: newCategories,
+      catalogs: [],
+    });
+    const savedCategories = await categories.save();
+    if (savedCategories === null) {
+      return res.json({ message: "CATEGORIES NOT SAVED TO THE DATABASE" });
+    }
+    res.status(200).json({ message: "CATEGORIES WERE SAVED TO THE DATABASE" });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getCategories = async (req, res, next) => {
+  try {
+    const categories = await Category.find({});
+    console.log(categories);
+    if (categories == null) {
+      return res
+        .status(200)
+        .json({ message: "CATEGORIES COULD NOT BE FETCHED" });
+    }
+    res
+      .status(201)
+      .json({ message: "CATEGORIES FETCHED", categories: categories });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.getProducts = (req, res, next) => {
   Product.find()
     .limit(20)
