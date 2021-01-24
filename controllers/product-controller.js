@@ -48,7 +48,6 @@ exports.addCategory = async (req, res, next) => {
 exports.getCategories = async (req, res, next) => {
   try {
     const categories = await Category.find({});
-    console.log(categories);
     if (categories == null) {
       return res
         .status(200)

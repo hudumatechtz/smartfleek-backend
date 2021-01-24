@@ -19,6 +19,10 @@ const customerModel = new Schema({
     type: String,
     required: false,
   },
+  mobile : {
+    type: Number,
+    required: false,
+  },
   cart: {
     items: [
       {

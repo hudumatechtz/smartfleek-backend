@@ -73,6 +73,7 @@ exports.postCustomerRegister = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const username = req.body.username;
+  const mobile = req.body.mobile;
   Customer.findOne({ email: email })
     .then((customer) => {
       if (customer) {
@@ -88,6 +89,7 @@ exports.postCustomerRegister = (req, res, next) => {
               email: email,
               username: username,
               password: hashedPassword,
+              mobile: mobile,
               cart: { items: [] },
             });
             return customer.save();
@@ -134,7 +136,10 @@ exports.postLogin = (req, res, next) => {
               if (!doMatch) {
                 return res
                   .status(200)
-                  .json({ message: "Either email or password is incorrect" });
+                  .json({
+                    message: "Either email or password is incorrect",
+                    isLoggedIn: false,
+                  });
               }
               // req.session.shopIsLoggedIn = true;
               // req.session.shop = shopUser;
@@ -150,11 +155,13 @@ exports.postLogin = (req, res, next) => {
                 }
               );
               res.status(201).json({
-                message: "Shop user exist",
                 success: true,
                 token: token,
                 email: shopUser.email,
                 shopId: shopUser._id.toString(),
+                isLoggedIn: true,
+                expiresIn: 3600,
+                username: shopUser.username,
               });
             });
           })
@@ -165,7 +172,7 @@ exports.postLogin = (req, res, next) => {
         if (!doMatch) {
           return res
             .status(200)
-            .json({ message: "Either email or password is incorrect" });
+            .json({ message: "Either email or password is incorrect", isLoggedIn: false});
         }
         // req.session.customerIsLoggedIn = true;
         // req.session.customer = user;
@@ -179,11 +186,13 @@ exports.postLogin = (req, res, next) => {
           { expiresIn: "1hr" }
         );
         res.status(201).json({
-          message: "Customer exist",
           success: true,
           token: token,
           email: user.email,
           customerId: user._id.toString(),
+          isLoggedIn: true,
+          expiresIn: 3600,
+          username: user.username,
         });
       });
     })
