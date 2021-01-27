@@ -70,7 +70,8 @@ exports.getProducts = (req, res, next) => {
         throw error;
       }
       //   console.log(products);
-      res.status(201).json({ products: products });
+      res.status(201).jsonp({products: products});
+      // res.status(201).json({ products: products });
     })
     .catch((err) => next(err));
 };
@@ -87,7 +88,8 @@ exports.getProduct = (req, res, next) => {
         error.statusCode = 503;
         throw error;
       }
-      res.status(201).json({ product: product, message: "PRODUCT OBTAINED" });
+      res.status(201).jsonp({ product: product, message: "PRODUCT OBTAINED" });
+      // res.status(201).json({ product: product, message: "PRODUCT OBTAINED" });
     })
     .catch((err) => next(err));
 };
