@@ -10,7 +10,7 @@ exports.getCart = (req, res, next) => {
         throw error;
       }
       const cart = customer.cart.items;
-      res.status(201).json({ message: "CART PRODUCTS OBATAINED", cart: cart });
+      res.status(201).json({ message: "BAG PRODUCTS OBATAINED", cart: cart });
     })
     .catch((err) => next(err));
 };
@@ -20,13 +20,13 @@ exports.removeProductFromCart = (req, res, next) => {
     .clearCart()
     .then((result) => {
       if (!result) {
-        const error = new Error("CART PRODUCT COULD NOT BE DELETED");
+        const error = new Error("BAG PRODUCT COULD NOT BE DELETED");
         error.statusCode = 500;
         throw error;
       }
       res
         .status(200)
-        .json({ message: "CART PRODUCT WAS DELETED SUCCESSFULLY" });
+        .json({ message: "BAG PRODUCT WAS DELETED SUCCESSFULLY" });
     })
     .catch((error) => next(error));
 };
@@ -41,7 +41,7 @@ exports.removeCart = (req, res, next) => {
       }
       res
         .status(200)
-        .json({ message: "CART PRODUCTS WERE CLEARED SUCCESSFULLY" });
+        .json({ message: "BAG PRODUCTS WERE CLEARED SUCCESSFULLY" });
     })
     .catch((error) => next(error));
 };

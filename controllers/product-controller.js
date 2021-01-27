@@ -6,31 +6,6 @@ exports.addCategory = async (req, res, next) => {
   // const { category } = req.body;
   try {
     const newCategories = [
-      "general",
-      "mens",
-      "women",
-      "children",
-      "media",
-      "clothes",
-      "electronics",
-      "household",
-      "artsandcrafts",
-      "furniture",
-      "smartphone",
-      "hairandbeauty",
-      "interior",
-      "exterior",
-      "pestcontrol",
-      "travelandtourism",
-      "television",
-      "laptop",
-      "footwear",
-      "handbags",
-      "transportation",
-      "durables",
-      "perishables",
-      "vegetables",
-      "food",
     ];
     const categories = await new Category({
       categories: newCategories,
@@ -107,7 +82,7 @@ exports.addToCart = (req, res, next) => {
       req.customer
         .addToCart(result, quantity)
         .then((result) =>
-          res.status(200).json({ message: "PRODUCT ADDED TO CART" })
+          res.status(200).json({ message: "PRODUCT ADDED TO BAG" })
         )
         .catch((err) => {
           throw err;
@@ -121,7 +96,7 @@ exports.removeProductFromCart = async (req, res, next) => {
   try {
     const result = await req.customer.removeCart(productId);
     console.log(result);
-    res.status(200).json({ message: "PRODUCT WAS DELETED", result: result });
+    res.status(200).json({ message: "PRODUCT WAS DELETED FROM BAG", result: result });
   } catch (error) {
     next(error);
   }
@@ -141,13 +116,13 @@ exports.searchProduct = async (req, res, next) => {
     // }
     if (products.length <= 0) {
       return res.status(200).json({
-        message: "PRODUCTS ARE NOT AVAILABLE IN THE MARKET CURRENTLY",
+        message: "PRODUCTS ARE NOT AVAILABLE CURRENTLY",
       });
     }
 
     res
       .status(201)
-      .json({ message: "PRODUCTS EXIST IN THE MARKET", products: products });
+      .json({ message: "PRODUCT(S) IS/ARE AVAILABLE", products: products });
   } catch (error) {
     next(error);
   }
