@@ -7,7 +7,4 @@ node_modules
 # Environment variable
 .env
 
-#Assets
-assets
-
 .idea
