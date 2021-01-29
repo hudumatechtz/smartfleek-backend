@@ -46,5 +46,4 @@ exports.removeCart = (req, res, next) => {
     .catch((error) => next(error));
 };
 exports.makeOrder = (req, res, next) => {
-    
 }

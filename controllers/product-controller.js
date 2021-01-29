@@ -1,15 +1,13 @@
 const Customer = require("../models/customer");
 const Product = require("../models/product");
 const Category = require("../models/category");
+const categoriesFile = require("../shared/categories");
 
 exports.addCategory = async (req, res, next) => {
   // const { category } = req.body;
   try {
-    const newCategories = [
-    ];
     const categories = await new Category({
-      categories: newCategories,
-      catalogs: [],
+      categories: categoriesFile,
     });
     const savedCategories = await categories.save();
     if (savedCategories === null) {
@@ -45,7 +43,7 @@ exports.getProducts = (req, res, next) => {
         throw error;
       }
       //   console.log(products);
-      res.status(201).jsonp({products: products});
+      res.status(201).jsonp({ products: products });
       // res.status(201).json({ products: products });
     })
     .catch((err) => next(err));
@@ -96,7 +94,9 @@ exports.removeProductFromCart = async (req, res, next) => {
   try {
     const result = await req.customer.removeCart(productId);
     console.log(result);
-    res.status(200).json({ message: "PRODUCT WAS DELETED FROM BAG", result: result });
+    res
+      .status(200)
+      .json({ message: "PRODUCT WAS DELETED FROM BAG", result: result });
   } catch (error) {
     next(error);
   }
