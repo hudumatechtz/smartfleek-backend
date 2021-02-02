@@ -23,7 +23,4 @@ router.delete(
 
 router.post("/checkout", isAuth, paymentController.checkoutSingleProduct);
 
-router.patch("/category/add-category", productController.addCategory);
-
-router.get("/categories", productController.getCategories);
 module.exports = router;
