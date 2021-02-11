@@ -3,36 +3,6 @@ const Product = require("../models/product");
 const Category = require("../models/category");
 const categoriesFile = require("../shared/categories");
 
-exports.addCategory = async (req, res, next) => {
-  // const { category } = req.body;
-  try {
-    const categories = await new Category({
-      categories: categoriesFile,
-    });
-    const savedCategories = await categories.save();
-    if (savedCategories === null) {
-      return res.json({ message: "CATEGORIES NOT SAVED TO THE DATABASE" });
-    }
-    res.status(200).json({ message: "CATEGORIES WERE SAVED TO THE DATABASE" });
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getCategories = async (req, res, next) => {
-  try {
-    const categories = await Category.find({});
-    if (categories == null) {
-      return res
-        .status(200)
-        .json({ message: "CATEGORIES COULD NOT BE FETCHED" });
-    }
-    res
-      .status(201)
-      .json({ message: "CATEGORIES FETCHED", categories: categories });
-  } catch (error) {
-    next(error);
-  }
-};
 exports.getProducts = (req, res, next) => {
   Product.find()
     .limit(20)

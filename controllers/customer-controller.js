@@ -10,7 +10,7 @@ exports.getCart = (req, res, next) => {
         throw error;
       }
       const cart = customer.cart.items;
-      res.status(201).json({ message: "BAG PRODUCTS OBATAINED", cart: cart });
+      res.status(201).json({ message: "BAG PRODUCTS OBTAINED", cart: cart });
     })
     .catch((err) => next(err));
 };
