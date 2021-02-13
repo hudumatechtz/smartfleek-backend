@@ -20,6 +20,7 @@ require("dotenv").config();
 const authRoute = require("./routes/auth-route");
 const shopRoute = require("./routes/shop-route");
 const productRoute = require("./routes/product-route");
+const customerRoute = require("./routes/customer-route");
 
 // OBJECT
 const PORT = process.env.PORT;
@@ -119,6 +120,7 @@ app.use(
 app.use("/account", authRoute);
 app.use("/shop/", shopRoute);
 app.use(productRoute);
+app.use(customerRoute);
 
 app.use("/", (req, res, next) => {
   res.status(200).json({api : "Welcome to Smarfleek Backend"});

@@ -9,8 +9,18 @@ exports.getCart = (req, res, next) => {
         error.statusCode = 401;
         throw error;
       }
-      const cart = customer.cart.items;
-      res.status(201).json({ message: "BAG PRODUCTS OBTAINED", cart: cart });
+      customer
+        .populate("cart.items.productId")
+        .execPopulate()
+        .then((customerData) => {
+          const cart = customerData.cart.items;
+          // cart.forEach((element) => {
+          //   console.log(element.productId.product);
+          // });
+          res
+            .status(201)
+            .json({ message: "BAG PRODUCTS OBTAINED", cart: cart });
+        });
     })
     .catch((err) => next(err));
 };
@@ -24,9 +34,7 @@ exports.removeProductFromCart = (req, res, next) => {
         error.statusCode = 500;
         throw error;
       }
-      res
-        .status(200)
-        .json({ message: "BAG PRODUCT WAS DELETED SUCCESSFULLY" });
+      res.status(200).json({ message: "BAG PRODUCT WAS DELETED SUCCESSFULLY" });
     })
     .catch((error) => next(error));
 };
@@ -45,5 +53,4 @@ exports.removeCart = (req, res, next) => {
     })
     .catch((error) => next(error));
 };
-exports.makeOrder = (req, res, next) => {
-}
+exports.makeOrder = (req, res, next) => {};

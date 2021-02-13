@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
-const Customer = require('../models/customer');
+const Customer = require("../models/customer");
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
   const authHeader = req.get("Authorization");
   if (!authHeader) {
     const err = new Error("Not Authenticated consider login");
@@ -13,36 +13,46 @@ module.exports = (req, res, next) => {
 
   try {
     decodedToken = jwt.verify(token, "secureCustomerLine");
-  } catch (error) { 
-    error.notSuccess = true;   
+  } catch (error) {
+    error.notSuccess = true;
     error.statusCode = 500;
-    throw error;
+    error.message = 'Not Authenticated';
+    next(error);
   }
 
-  if (!decodedToken) {
-    console.log('jwt 2');
-    const error = new Error("Not  Authenticated");
-    error.notSuccess = true;  
-    error.statusCode = 401;
-    throw error;
-    // return res.status(401).json({notSuccess: true});
-  }
+  // if (!decodedToken) {
+  //   const error = new Error("Not  Authenticated");
+  //   error.notSuccess = true;
+  //   error.statusCode = 401;
+  //   throw error;
+  // return res.status(401).json({notSuccess: true});
+  // }
+  
   req.customerId = decodedToken.customerId;
   req.customerEmail = decodedToken.email;
 
-  Customer.findById(req.customerId)
-  .then(
-    result => {
-      if(!result){
-        const error = new Error('Not Authenticated');
-        error.notSuccess = true;  
-        error.statusCode = 401;
-        throw error;
-        // return res.status(401).json({notSuccess: false});
-      }
-      req.customer = result;
-      // console.log("the customer is %s", req.customer);
+  // Customer.findById(req.customerId).then((result) => {
+  //   if (!result) {
+  //     const error = new Error("Not Authenticated");
+  //     error.notSuccess = true;
+  //     error.statusCode = 401;
+  //     throw error;
+  //     // return res.status(401).json({notSuccess: false});
+  //   }
+  //   req.customer = result;
+  //   // console.log("the customer is %s", req.customer);
+  // });
+  try {
+    const result = await Customer.findById(req.customerId);
+    if (result === null) {
+      const error = new Error("Not Authenticated");
+      error.notSuccess = true;
+      error.statusCode = 401;
+      throw error;
     }
-  )
+    req.customer = result;
+  } catch (error) {
+    next(error);
+  }
   next();
 };
