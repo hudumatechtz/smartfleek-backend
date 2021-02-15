@@ -18,7 +18,14 @@ exports.addProduct = (req, res, next) => {
   const category = req.body.category;
   const catalog = req.body.catalog;
   console.log(req.file);
-  if(!productName || !retailPrice || !quantity || !image || !category || !catalog){
+  if (
+    !productName ||
+    !retailPrice ||
+    !quantity ||
+    !image ||
+    !category ||
+    !catalog
+  ) {
     const error = new Error("Product form has errors, correct them");
     error.statusCode = 422;
     throw error;
@@ -31,10 +38,10 @@ exports.addProduct = (req, res, next) => {
     quantity: quantity,
     description: description,
     // images: [], //IMAGE ARRAY
-    images: {imagePaths : paths},
+    images: { imagePaths: paths },
     category: category,
     catalog: catalog,
-    shop: {email : req.shopEmail, shopId: req.shopId}
+    shop: { email: req.shopEmail, shopId: req.shopId },
   });
   product
     .save()
@@ -108,6 +115,19 @@ exports.getCatalogies = async (req, res, next) => {
     res.json(catalog);
   } catch (error) {
     next(error);
-  } 
-
+  }
+};
+exports.getShopProducts = async (req, res, next) => {
+  const email = req.shopEmail;
+  try {
+    const products = await Product.find({"shop.email": email });
+    if (products === null) {
+      const error = new Error("PRODUCT FETCH FAILED, TRY LATER");
+      error.statusCode = 500;
+      throw error;
+    }
+    res.status(201).json({ products: products });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -12,4 +12,5 @@ router.get("/categories", shopController.getCategories);
 
 router.get("/catalog/:category", shopController.getCatalogies);
 
+router.get("/shop-products", isAuth, shopController.getShopProducts);
 module.exports = router;
