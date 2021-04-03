@@ -1,25 +1,32 @@
-const order = require("../models/order");
 const Order = require("../models/order");
 
 exports.postOrder = async (req, res, next) => {
   try {
-    const customer = await req.customer;
-    const customerProductsInfo = await customer
-      .populate("cart.items.productid")
-      .execPopulate();
-    if (!customerProductsInfo) {
+    const customerProductsInfo = await req.customer.populate(
+      "cart.items.productId"
+    );
+
+    const customerProductsExec = await customerProductsInfo.execPopulate();
+
+    if (!customerProductsExec) {
       const error = new Error("NO CUSTOMER ORDER WAS PROCESSESD");
       error.statusCode = 404;
       throw error;
     }
-    const products = customerProductsInfo.cart.items.map((i) => {
-      return { quantity: i.quantity, product: { ...i.productId._doc } };
+    const products = customerProductsExec.cart.items.map((i) => {
+      const amount = +i.quantity * i.productId.retailPrice;
+
+      return {
+        quantity: i.quantity,
+        product: { ...i.productId._doc },
+        amount: amount,
+      };
     });
     const order = new Order({
       "customer.customerEmail": req.customerEmail,
       "customer.customerId": req.customerId,
       // Convert products array to objects
-      products: products,
+      products
       // SHOP DETAILS
     });
     const savedOrder = await order.save();
@@ -35,7 +42,9 @@ exports.postOrder = async (req, res, next) => {
       throw error;
     }
     res.status(200).json({ message: "ORDER WAS SUCCESSFULLY PROCESSED" });
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.getLatestOrder = async (req, res, next) => {
@@ -64,6 +73,39 @@ exports.getAllOrders = async (req, res, next) => {
     res
       .status(201)
       .json({ message: "ORDERS RETRIEVED SUCCESSFULLY", orders: orders });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.orderSingleProduct = async (req, res, next) => {
+  const { productId, quantity } = req.body;
+  const customerId = req.customerId;
+  const customerEmail = req.customerEmail;
+  try {
+    const product = await Product.findOne({ _id: productId.toString() });
+    if (!product) {
+      return res
+        .status(200)
+        .json({ message: "PRODUCT ORDER COULD NOT BE PROCESSED" });
+    }
+    // console.log(product);
+    const { email, shopId } = product.shop;
+    const amount = product.retailPrice * +quantity;
+    // const products = [];
+    // console.log(product);
+    // products.push(product);
+    const order = await new Order({
+      customer: { customerId: customerId, customerEmail: customerEmail },
+      products: [{ product: product, quantity: quantity, amount: amount }],
+      //   shop: { email: product.email, shopId: product.shopId },
+    });
+    const savedOrder = await order.save();
+    if (!savedOrder) {
+      return;
+    }
+    res
+      .status(200)
+      .json({ message: "ORDER WAS SUCCESSFULLY", order: savedOrder });
   } catch (error) {
     next(error);
   }
