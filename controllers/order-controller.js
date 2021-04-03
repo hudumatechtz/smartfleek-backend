@@ -1,4 +1,5 @@
 const Order = require("../models/order");
+const Product = require("../models/product");
 
 exports.postOrder = async (req, res, next) => {
   try {
@@ -79,6 +80,7 @@ exports.getAllOrders = async (req, res, next) => {
 };
 exports.orderSingleProduct = async (req, res, next) => {
   const { productId, quantity } = req.body;
+  // console.log(req.body);
   const customerId = req.customerId;
   const customerEmail = req.customerEmail;
   try {

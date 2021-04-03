@@ -17,7 +17,8 @@ module.exports = async (req, res, next) => {
     error.notSuccess = true;
     error.statusCode = 500;
     error.message = 'Not Authenticated';
-    next(error);
+    console.log('error');
+    return next(error);
   }
 
   // if (!decodedToken) {
@@ -52,7 +53,7 @@ module.exports = async (req, res, next) => {
     }
     req.customer = result;
   } catch (error) {
-    next(error);
+   return next(error);
   }
   next();
 };

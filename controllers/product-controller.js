@@ -40,7 +40,6 @@ exports.getProduct = (req, res, next) => {
 exports.addToCart = (req, res, next) => {
   const productId = req.body.productId;
   const quantity = req.body.quantity;
-  console.log(req.customer);
   Product.findById(productId.toString())
     .then((result) => {
       if (!result) {
@@ -60,10 +59,9 @@ exports.addToCart = (req, res, next) => {
 };
 exports.removeProductFromCart = async (req, res, next) => {
   const { productId } = req.params;
-  console.log(productId);
   try {
     const result = await req.customer.removeCart(productId);
-    console.log(result);
+    // console.log(result);
     res
       .status(200)
       .json({ message: "PRODUCT WAS DELETED FROM BAG", result: result });
