@@ -14,9 +14,6 @@ exports.getCart = (req, res, next) => {
         .execPopulate()
         .then((customerData) => {
           const cart = customerData.cart.items;
-          // cart.forEach((element) => {
-          //   console.log(element.productId.product);
-          // });
           res
             .status(201)
             .json({ message: "BAG PRODUCTS OBTAINED", cart: cart });
