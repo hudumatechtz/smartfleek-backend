@@ -27,7 +27,7 @@ exports.postOrder = async (req, res, next) => {
       "customer.customerEmail": req.customerEmail,
       "customer.customerId": req.customerId,
       // Convert products array to objects
-      products
+      products,
       // SHOP DETAILS
     });
     const savedOrder = await order.save();
@@ -108,6 +108,30 @@ exports.orderSingleProduct = async (req, res, next) => {
     res
       .status(200)
       .json({ message: "ORDER WAS SUCCESSFULLY", order: savedOrder });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getCustomerOrders = async (req, res, next) => {
+  const email = req.customerEmail;
+  try {
+    orders = await await Order.find(
+      { "customer.customerEmail": email },
+      `products _id`
+    ).limit(4);
+
+    if (orders.length <= 0) {
+      const err = new Error("ORDERS COULD NOT BE FETCHED");
+      err.statusCode = 500;
+      throw err;
+    }
+    // console.log(orders);
+    // orders.forEach((orderArray) => {
+    //   orderArray.products.forEach((order) => {
+    //     console.log(order);
+    //   });
+    // });
+    res.status(201).json({ message: "ORDERS OBTAINED", orders: orders });
   } catch (error) {
     next(error);
   }
