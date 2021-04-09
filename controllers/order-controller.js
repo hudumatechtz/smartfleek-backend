@@ -63,9 +63,9 @@ exports.getLatestOrder = async (req, res, next) => {
   }
 };
 exports.getAllOrders = async (req, res, next) => {
-  const shopEmail = req.shopEmail;
+  const email = req.shopEmail;
   try {
-    const orders = await Order.find({ "shop.shopEmail": shopEmail });
+    const orders = await Order.find({ "shop.shopEmail": email });
     if (!orders) {
       throw (new Error(
         "ORDERS COULD NOT BE RETRIEVED OR NO ORDERS"
@@ -118,7 +118,7 @@ exports.getCustomerOrders = async (req, res, next) => {
     orders = await await Order.find(
       { "customer.customerEmail": email },
       `products _id`
-    ).limit(4);
+    ).sort({_id: -1}).limit(6);
 
     if (orders.length <= 0) {
       const err = new Error("ORDERS COULD NOT BE FETCHED");
@@ -136,3 +136,7 @@ exports.getCustomerOrders = async (req, res, next) => {
     next(error);
   }
 };
+
+const sendMailToShops = async(emails = new Array()) =>{
+
+}

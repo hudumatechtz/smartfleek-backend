@@ -5,6 +5,7 @@ const categoriesFile = require("../shared/categories");
 
 exports.getProducts = (req, res, next) => {
   Product.find()
+    .sort({ _id: -1 })
     .limit(20)
     .then((products) => {
       if (!products) {
@@ -25,6 +26,7 @@ exports.getProduct = (req, res, next) => {
   // console.log(id);
   // console.log(id);
   Product.findOne({ _id: id.toString() })
+    .sort({ _id: -1 })
     .then((product) => {
       if (!product) {
         const error = new Error("PRODUCT FAILED TO FETCH");
@@ -78,7 +80,9 @@ exports.searchProduct = async (req, res, next) => {
       product: { $regex: regex },
     });
     // console.log(noOfProducts);
-    const products = await Product.find({ product: { $regex: regex } });
+    const products = await Product.find({ product: { $regex: regex } })
+      .sort({ _id: -1 })
+      .limit(25);
     // if(!products){
     //   throw new Error('PRODUCT')
     // }
@@ -98,7 +102,9 @@ exports.searchProduct = async (req, res, next) => {
 exports.getProductsByCategory = async (req, res, next) => {
   const category = req.params.category;
   try {
-    const products = await Product.find({ category: category });
+    const products = await Product.find({ category: category })
+      .sort({ _id: -1 })
+      .limit(20);
     if (products.length <= 0) {
       return res
         .status(200)
