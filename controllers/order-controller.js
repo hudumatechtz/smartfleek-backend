@@ -140,8 +140,8 @@ exports.getCustomerOrders = async (req, res, next) => {
     //     console.log(shopData.mobileNumber);
     //   });
     // });
-    const newOrders = await populateOrders(orders);
-    res.status(201).json({ message: "ORDERS OBTAINED", orders: newOrders });
+    // const newOrders = await populateOrders(orders);
+    res.status(201).json({ message: "ORDERS OBTAINED", orders: orders });
   } catch (error) {
     next(error);
   }
