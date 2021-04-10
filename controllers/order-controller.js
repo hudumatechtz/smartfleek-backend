@@ -1,5 +1,7 @@
+const { Promise } = require("mongoose");
 const Order = require("../models/order");
 const Product = require("../models/product");
+const Shop = require("../models/shop");
 
 exports.postOrder = async (req, res, next) => {
   try {
@@ -10,7 +12,7 @@ exports.postOrder = async (req, res, next) => {
     const customerProductsExec = await customerProductsInfo.execPopulate();
 
     if (!customerProductsExec) {
-      const error = new Error("NO CUSTOMER ORDER WAS PROCESSESD");
+      const error = new Error("NO CUSTOMER ORDER WAS PROCESSED");
       error.statusCode = 404;
       throw error;
     }
@@ -96,7 +98,7 @@ exports.orderSingleProduct = async (req, res, next) => {
     // const products = [];
     // console.log(product);
     // products.push(product);
-    const order = await new Order({
+    const order = new Order({
       customer: { customerId: customerId, customerEmail: customerEmail },
       products: [{ product: product, quantity: quantity, amount: amount }],
       //   shop: { email: product.email, shopId: product.shopId },
@@ -115,10 +117,13 @@ exports.orderSingleProduct = async (req, res, next) => {
 exports.getCustomerOrders = async (req, res, next) => {
   const email = req.customerEmail;
   try {
-    orders = await await Order.find(
+    orders = await Order.find(
       { "customer.customerEmail": email },
       `products _id`
-    ).sort({_id: -1}).limit(6);
+    )
+      .sort({ _id: -1 })
+      .limit(6);
+    // const data = await populateShopDetails(order);
 
     if (orders.length <= 0) {
       const err = new Error("ORDERS COULD NOT BE FETCHED");
@@ -127,16 +132,88 @@ exports.getCustomerOrders = async (req, res, next) => {
     }
     // console.log(orders);
     // orders.forEach((orderArray) => {
-    //   orderArray.products.forEach((order) => {
-    //     console.log(order);
+    //   orderArray.products.forEach(async(product) => {
+    //     const shopEmail = product.product.shop.email;
+    //     let mobileNumber;
+    //     let shapeName;
+    //     const shopData = await Shop.findOne({email: shopEmail}).sort({_id: -1});
+    //     console.log(shopData.mobileNumber);
     //   });
     // });
-    res.status(201).json({ message: "ORDERS OBTAINED", orders: orders });
+    const newOrders = await populateOrders(orders);
+    res.status(201).json({ message: "ORDERS OBTAINED", orders: newOrders });
   } catch (error) {
     next(error);
   }
 };
 
-const sendMailToShops = async(emails = new Array()) =>{
+const sendMailToShops = async (emails = new Array()) => {};
+const populateShopDetails = async (orders) => {
+  const product = await await orders
+    .populate("products.product")
+    .execPopulate();
+  return new Promise((resolve, reject) => {
+    const shopData = { product };
 
-}
+    if (shopData) {
+      resolve(shopData);
+    } else {
+      reject({});
+    }
+  });
+};
+const populateOrders = async (orders) => {
+  let shopMobileNumber;
+  let shopName;
+  let newOrders = [...orders];
+  let newOrderArray = [];
+  // await Promise.all(
+  //   newOrders.map(async (orderArray) => {
+  //     for (product of orderArray.products) {
+  //       // console.log(products);
+  //       const shopEmail = product.product.shop.email;
+  //       const shopData = await Shop.findOne({ email: shopEmail }).sort({
+  //         _id: -1,
+  //       });
+  //       shopName = shopData.shopName;
+  //       shopMobileNumber = shopData.mobileNumber;
+  //       // console.log({ product, shopName, shopMobileNumber });
+  //       product.product = { product, ...shopData, ...shopMobileNumber };
+  //       // modifiedProducts.push({ ...product, shopName, shopMobileNumber });
+  //     }
+  //     // orderArray.products = modifiedProducts;
+  //   })
+  // );
+  // return newOrders;
+  const newOrdersPromise = new Promise(async (resolve, reject) => {
+    orders.forEach(async (orderArray) => {
+      // newOrderArray = [...orderArray];
+      // consorderArray = [];
+      await orderArray.products.forEach(async (product) => {
+        let copiedProduct = {...product};
+        const shopEmail = product.product.shop.email;
+        const shopData = await Shop.findOne({ email: shopEmail }).sort({
+          _id: -1,
+        });
+        // console.log(shopData.mobileNumber);
+        // console.log(product);
+        shopName = shopData.shopName;
+        shopMobileNumber = shopData.mobileNumber;
+        // console.log({ product, shopName, shopMobileNumber });
+        const newModifiedProduct = { product, shopName, shopMobileNumber };
+        // console.log(newModifiedProduct);
+        copiedProduct.product = newModifiedProduct;
+      });
+      
+      // newOrders.push(newOrderArray);
+    });
+    if (newOrders.length <= 0) {
+      reject([]);
+    } else {
+      console.log("resolved");
+      resolve(newOrders);
+    }
+  });
+  // console.log(newOrdersPromise)
+  return Promise.all([newOrdersPromise]);
+};
