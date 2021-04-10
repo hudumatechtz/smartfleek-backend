@@ -24,7 +24,8 @@ exports.addProduct = (req, res, next) => {
     !quantity ||
     !image ||
     !category ||
-    !catalog
+    !catalog ||
+    !description
   ) {
     const error = new Error("Product form has errors, correct them");
     error.statusCode = 422;
@@ -120,7 +121,7 @@ exports.getCatalogies = async (req, res, next) => {
 exports.getShopProducts = async (req, res, next) => {
   const email = req.shopEmail;
   try {
-    const products = await Product.find({"shop.email": email });
+    const products = await Product.find({ "shop.email": email });
     if (products === null) {
       const error = new Error("PRODUCT FETCH FAILED, TRY LATER");
       error.statusCode = 500;
@@ -130,4 +131,86 @@ exports.getShopProducts = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+exports.getEditProduct = async (req, res, next) => {
+  const { productId } = req.params;
+  try {
+    const product = await Product.findOne({
+      _id: productId,
+      "shop.email": req.shopEmail,
+    }).sort({ _id: -1 });
+    if (!product) {
+      throw new Error("Product could not be fetched");
+    }
+    res.status(201).json(product);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.postProductEdit = async (req, res, next) => {
+  const { productId } = req.body;
+  const updatedProductName = req.body.product;
+  const updatedRetailPrice = req.body.retailPrice;
+  const image = req.file;
+  const updatedCategory = req.body.category;
+  const updatedCatalog = req.body.catalog;
+  const updateQuantity = req.body.quantity;
+  // const updatedWholesalePrice = req.body.wholeSalePrice;
+  const updatedDescription = req.body.description;
+  try {
+    if (
+      !updatedProductName ||
+      !updateQuantity ||
+      !updatedCatalog ||
+      !updatedDescription ||
+      !updatedCategory ||
+      !updatedRetailPrice ||
+      !image
+    ) {
+      const error = new Error("Product form has errors, correct them");
+      error.statusCode = 422;
+      throw error;
+    }
+    const product = await Product.findOne({
+      _id: productId,
+      "shop.email": req.shopEmail,
+    }).sort({ _id: -1 });
+    if (!product) {
+      throw new Error(`Product could not be found`);
+    }
+    product.product = updatedProductName;
+    product.retailPrice = updatedRetailPrice;
+    product.quantity = updateQuantity;
+    product.catalog = updatedCatalog;
+    product.category = updatedCategory;
+    // product.wholeSalePrice = updatedWholesalePrice;
+    product.description = updatedDescription;
+    let paths = [];
+    paths.push(image.path);
+    product.images = { imagePaths: paths };
+    product.shop = { email: req.shopEmail, shopId: req.shopId };
+    const updatedProduct = await product.save();
+    if (!updatedProduct) {
+      throw new Error(`Product Update Failed`).statusCode(500);
+    }
+    res.status(201).json({ message: "Product was updated" });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.deleteProduct = (req, res, next) => {
+  const { productId } = req.params;
+  Product.findOne({ _id: productId })
+    .sort({ __id: -1 })
+    .then((product) => {
+      if (!product) {
+        throw new Error("Product is not availabe for deletion");
+      }
+      return product.deleteOne();
+    })
+    .then((result) =>
+      res.status(200).json({ message: "PRODUCT WAS DELETED SUCCESSFULY" })
+    )
+    .catch((err) => next(err));
 };

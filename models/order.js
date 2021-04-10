@@ -28,6 +28,6 @@ const orderModel = new Schema({
   //     ref: "Shop",
   //   },
   // },
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model("Order", orderModel);
