@@ -209,8 +209,10 @@ exports.deleteProduct = (req, res, next) => {
       }
       return product.deleteOne();
     })
-    .then((result) =>
-      res.status(200).json({ message: "PRODUCT WAS DELETED SUCCESSFULY" })
-    )
+    .then((result) => {
+      if (result.deleteCount == 1)
+        return res.status(200).json({ message: "PRODUCT NOT DELETED" });
+      res.status(200).json({ message: "PRODUCT WAS DELETED SUCCESSFULY" });
+    })
     .catch((err) => next(err));
 };
