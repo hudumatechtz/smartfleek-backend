@@ -216,3 +216,38 @@ exports.deleteProduct = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
+
+exports.getNumberOfProducts = async (req, res, next) => {
+  try {
+    const count = await Product.countDocuments({
+      "shop.email": req.shopEmail,
+    });
+    if (!(count > 0)) {
+      const error = new Error("NO PRODUCTS UNDER YOUR SHOP");
+      error.statusCode = 420;
+      throw error;
+    }
+    res
+      .status(201)
+      .json({ message: "PRODUCTs exist under your shop", count: count });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getNumberOfOrders =  async (req, res, next) => {
+  try {
+    const count = await Product.countDocuments({
+      "shop.email": req.shopEmail,
+    });
+    if (!(count > 0)) {
+      const error = new Error("NO PRODUCTS UNDER YOUR SHOP");
+      error.statusCode = 420;
+      throw error;
+    }
+    res
+      .status(201)
+      .json({ message: "ORDERS RECEIVED BY THIS SHOP", count: count });
+  } catch (error) {
+    next(error);
+  }
+};
