@@ -17,7 +17,7 @@ exports.addProduct = (req, res, next) => {
   const image = req.file;
   const category = req.body.category;
   const catalog = req.body.catalog;
-  console.log(req.file);
+  // console.log(req.file);
   if (
     !productName ||
     !retailPrice ||
@@ -149,13 +149,14 @@ exports.getEditProduct = async (req, res, next) => {
 };
 
 exports.postProductEdit = async (req, res, next) => {
-  const { productId } = req.body;
+  const productId = req.body.productId;
   const updatedProductName = req.body.product;
   const updatedRetailPrice = req.body.retailPrice;
   const image = req.file;
   const updatedCategory = req.body.category;
   const updatedCatalog = req.body.catalog;
   const updateQuantity = req.body.quantity;
+  const imageUrl = req.body.imageUrl;
   // const updatedWholesalePrice = req.body.wholeSalePrice;
   const updatedDescription = req.body.description;
   try {
@@ -166,9 +167,9 @@ exports.postProductEdit = async (req, res, next) => {
       !updatedDescription ||
       !updatedCategory ||
       !updatedRetailPrice ||
-      !image
+      !imageUrl
     ) {
-      const error = new Error("Product form has errors, correct them");
+      const error = new Error("Product edit form has errors, correct them");
       error.statusCode = 422;
       throw error;
     }
@@ -179,6 +180,12 @@ exports.postProductEdit = async (req, res, next) => {
     if (!product) {
       throw new Error(`Product could not be found`);
     }
+    let paths = [];
+    if(image != null){
+      paths.push(image.path);
+    }else{
+      paths.push(imageUrl);
+    }
     product.product = updatedProductName;
     product.retailPrice = updatedRetailPrice;
     product.quantity = updateQuantity;
@@ -186,8 +193,6 @@ exports.postProductEdit = async (req, res, next) => {
     product.category = updatedCategory;
     // product.wholeSalePrice = updatedWholesalePrice;
     product.description = updatedDescription;
-    let paths = [];
-    paths.push(image.path);
     product.images = { imagePaths: paths };
     product.shop = { email: req.shopEmail, shopId: req.shopId };
     const updatedProduct = await product.save();
