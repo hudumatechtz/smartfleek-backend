@@ -42,7 +42,12 @@ exports.addProduct = (req, res, next) => {
     images: { imagePaths: paths },
     category: category,
     catalog: catalog,
-    shop: { email: req.shopEmail, shopId: req.shopId },
+    shop: {
+      email: req.shopEmail,
+      shopId: req.shopId,
+      shopMobile: req.shop.mobileNumber,
+      shopName: req.shop.shopName,
+    },
   });
   product
     .save()
@@ -181,9 +186,9 @@ exports.postProductEdit = async (req, res, next) => {
       throw new Error(`Product could not be found`);
     }
     let paths = [];
-    if(image != null){
+    if (image != null) {
       paths.push(image.path);
-    }else{
+    } else {
       paths.push(imageUrl);
     }
     product.product = updatedProductName;
@@ -239,7 +244,7 @@ exports.getNumberOfProducts = async (req, res, next) => {
     next(error);
   }
 };
-exports.getNumberOfOrders =  async (req, res, next) => {
+exports.getNumberOfOrders = async (req, res, next) => {
   try {
     const count = await Product.countDocuments({
       "shop.email": req.shopEmail,

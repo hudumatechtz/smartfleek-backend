@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
   } catch (error) {
     error.notSuccess = true;
     error.statusCode = 500;
-    error.message = 'Not Authenticated';
+    error.message = 'Session expired, consider login';
     console.log('error');
     return next(error);
   }
@@ -46,7 +46,7 @@ module.exports = async (req, res, next) => {
   try {
     const result = await Customer.findById(req.customerId);
     if (result === null) {
-      const error = new Error("Not Authenticated");
+      const error = new Error("Not Authenticated OR session expired, consider login");
       error.notSuccess = true;
       error.statusCode = 401;
       throw error;

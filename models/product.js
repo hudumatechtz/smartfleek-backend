@@ -40,6 +40,14 @@ const productModel = new Schema(
         required: true,
         ref: "Shop",
       },
+      shopName : {
+        type: String,
+        required: false
+      },
+      shopMobile : {
+        type : Number,
+        required : false,
+      }
     },
     images: {
       imagePaths: [],

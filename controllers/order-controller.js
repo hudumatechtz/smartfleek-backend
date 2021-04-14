@@ -141,7 +141,13 @@ exports.getCustomerOrders = async (req, res, next) => {
     //     console.log(shopData.mobileNumber);
     //   });
     // });
-    // const newOrders = await populateOrders(orders);
+    //  const obj = await populateOrders(orders, 
+    //   (newOrders) => {
+    //     newOrders.forEach(order => {
+    //       console.log('here');
+    //       console.log(order);
+    //     })
+    //   });
     res.status(201).json({ message: "ORDERS OBTAINED", orders: orders });
   } catch (error) {
     next(error);
@@ -163,35 +169,18 @@ const populateShopDetails = async (orders) => {
     }
   });
 };
-const populateOrders = async (orders) => {
+const populateOrders = async (orders, callback) => {
   let shopMobileNumber;
   let shopName;
   let newOrders = [...orders];
-  let newOrderArray = [];
-  // await Promise.all(
-  //   newOrders.map(async (orderArray) => {
-  //     for (product of orderArray.products) {
-  //       // console.log(products);
-  //       const shopEmail = product.product.shop.email;
-  //       const shopData = await Shop.findOne({ email: shopEmail }).sort({
-  //         _id: -1,
-  //       });
-  //       shopName = shopData.shopName;
-  //       shopMobileNumber = shopData.mobileNumber;
-  //       // console.log({ product, shopName, shopMobileNumber });
-  //       product.product = { product, ...shopData, ...shopMobileNumber };
-  //       // modifiedProducts.push({ ...product, shopName, shopMobileNumber });
-  //     }
-  //     // orderArray.products = modifiedProducts;
-  //   })
-  // );
-  // return newOrders;
-  const newOrdersPromise = new Promise(async (resolve, reject) => {
-    orders.forEach(async (orderArray) => {
-      // newOrderArray = [...orderArray];
-      // consorderArray = [];
-      await orderArray.products.forEach(async (product) => {
-        let copiedProduct = {...product};
+  let newOrderObject = {};
+  // const newOrdersPromise = new Promise(async (resolve, reject) => {
+    orders.forEach(async (orderObject) => {
+      newOrderObject.products = [];
+      let copiedProduct = {};
+      await orderObject.products.forEach(async (product) => {
+        copiedProduct = {...product};
+        allPoductsPerOrder = [];
         const shopEmail = product.product.shop.email;
         const shopData = await Shop.findOne({ email: shopEmail }).sort({
           _id: -1,
@@ -204,17 +193,24 @@ const populateOrders = async (orders) => {
         const newModifiedProduct = { product, shopName, shopMobileNumber };
         // console.log(newModifiedProduct);
         copiedProduct.product = newModifiedProduct;
+        allPoductsPerOrder.push(copiedProduct);
       });
-      
-      // newOrders.push(newOrderArray);
+      newOrderObject.products.push(allPoductsPerOrder);
     });
-    if (newOrders.length <= 0) {
-      reject([]);
-    } else {
-      console.log("resolved");
-      resolve(newOrders);
+    newOrders.products = newOrderObject.products;
+    console.log(newOrders[0].products[0]);
+    if(newOrders <= 0){
+     return callback([]);
     }
-  });
+    callback[newOrders];
+
+    // if (newOrders.length <= 0) {
+    //   reject([]);
+    // } else {
+    //   console.log("resolved");
+    //   resolve(newOrders);
+    // }
+  // });
   // console.log(newOrdersPromise)
-  return Promise.all([newOrdersPromise]);
+  // return Promise.all([newOrdersPromise]);
 };
