@@ -199,7 +199,7 @@ exports.postProductEdit = async (req, res, next) => {
     if (!updatedProduct) {
       throw new Error(`Product Update Failed`).statusCode(500);
     }
-    res.status(201).json({ message: "Product was updated" });
+    res.status(201).json({ message: "Product was updated", success: true });
   } catch (error) {
     next(error);
   }

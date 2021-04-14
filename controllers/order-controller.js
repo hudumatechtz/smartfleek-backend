@@ -107,6 +107,7 @@ exports.orderSingleProduct = async (req, res, next) => {
     if (!savedOrder) {
       return;
     }
+    const result = await req.customer.removeCart(productId);
     res
       .status(200)
       .json({ message: "ORDER WAS SUCCESSFULLY", order: savedOrder });
