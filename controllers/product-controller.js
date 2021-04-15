@@ -102,26 +102,26 @@ exports.searchProduct = async (req, res, next) => {
 exports.getProductsByCategory = async (req, res, next) => {
   const category = req.params.category;
   try {
-    const products = await Product.find({ category: category })
+    const products = await Product.find({ catalog: category })
       .sort({ _id: -1 })
       .limit(30);
     if (products.length <= 0) {
-      const subCategory = await Product.find({ catalog: category })
+      const categories = await Product.find({ category: category })
         .sort({ _id: -1 })
         .limit(35);
-        if(subCategory.length <= 0){
-          const error = new Error("PRODUCTS CATEGORY COULD NOT BE FETCHED")
-          error.statusCode = 204;
-          throw error;
-          // return 
-        }
+      if (categories.length <= 0) {
+        const error = new Error("PRODUCTS CATEGORY COULD NOT BE FETCHED");
+        error.statusCode = 204;
+        throw error;
+        // return
+      }
       return res
         .status(200)
-        .json({ message: "PRODUCTS CATALOG FETCHED ", products: subCategory });
+        .json({ message: "PRODUCTS CATEGORY FETCHED ", products: categories });
     }
     res
       .status(201)
-      .json({ message: "PRODUCTS CATEGORY FETCHED", products: products });
+      .json({ message: "PRODUCTS CATALOG FETCHED", products: products });
   } catch (error) {
     next(error);
   }
