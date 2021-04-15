@@ -68,7 +68,7 @@ exports.getLatestOrder = async (req, res, next) => {
 exports.getAllOrders = async (req, res, next) => {
   const email = req.shopEmail;
   try {
-    const orders = await Order.find({ "shop.shopEmail": email });
+    const orders = await Order.find({ "products.product.shop.email": email });
     if (!orders) {
       throw (new Error(
         "ORDERS COULD NOT BE RETRIEVED OR NO ORDERS"
@@ -124,7 +124,7 @@ exports.getCustomerOrders = async (req, res, next) => {
       `products _id`
     )
       .sort({ _id: -1 })
-      .limit(6);
+      .limit(8);
     // const data = await populateShopDetails(order);
 
     if (orders.length <= 0) {

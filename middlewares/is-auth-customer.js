@@ -17,7 +17,6 @@ module.exports = async (req, res, next) => {
     error.notSuccess = true;
     error.statusCode = 500;
     error.message = 'Session expired, consider login';
-    console.log('error');
     return next(error);
   }
 

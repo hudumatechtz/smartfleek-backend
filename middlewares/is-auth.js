@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 // Existence and Validity
-const Shop = require('../models/shop');
+const Shop = require("../models/shop");
 
 module.exports = async (req, res, next) => {
   const authHeader = req.get("Authorization");
@@ -15,8 +15,8 @@ module.exports = async (req, res, next) => {
     decodedToken = jwt.verify(token, "secureShopLine");
   } catch (error) {
     error.statusCode = 500;
-    error.message = 'Session expired, consider login';
-    throw error;
+    error.message = "Session expired, consider login";
+    return next(error);
   }
 
   if (!decodedToken) {
@@ -29,14 +29,16 @@ module.exports = async (req, res, next) => {
   try {
     const result = await Shop.findById(req.shopId);
     if (result === null) {
-      const error = new Error("Not Authenticated OR session expired, consider login");
+      const error = new Error(
+        "Not Authenticated OR session expired, consider login"
+      );
       error.notSuccess = true;
       error.statusCode = 401;
       throw error;
     }
     req.shop = result;
   } catch (error) {
-   return next(error);
+    return next(error);
   }
   next();
 };
