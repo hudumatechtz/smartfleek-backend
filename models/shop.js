@@ -47,7 +47,6 @@ const shopModel = new Schema({
     type: String,
     required: true,
   },
-  registerDate : Date
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model("Shop", shopModel);

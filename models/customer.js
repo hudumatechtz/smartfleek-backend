@@ -38,7 +38,7 @@ const customerModel = new Schema({
       },
     ],
   },
-});
+}, {timestamps: true});
 customerModel.methods.addToCart = function (product, quantity = 1) {
   const cartProductIndex = this.cart.items.findIndex(
     (cp) => cp.productId.toString() === product._id.toString()
