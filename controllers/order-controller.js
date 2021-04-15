@@ -28,6 +28,7 @@ exports.postOrder = async (req, res, next) => {
     const order = new Order({
       "customer.customerEmail": req.customerEmail,
       "customer.customerId": req.customerId,
+      "customer.customerNumber": req.mobile,
       // Convert products array to objects
       products,
       // SHOP DETAILS

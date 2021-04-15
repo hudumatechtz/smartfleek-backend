@@ -21,33 +21,33 @@ exports.getCart = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
-exports.removeProductFromCart = (req, res, next) => {
-  const productId = req.body.productId;
-  req.customer
-    .clearCart()
-    .then((result) => {
-      if (!result) {
-        const error = new Error("BAG PRODUCT COULD NOT BE DELETED");
-        error.statusCode = 500;
-        throw error;
-      }
-      res.status(200).json({ message: "BAG PRODUCT WAS DELETED SUCCESSFULLY" });
-    })
-    .catch((error) => next(error));
-};
+// exports.removeProductFromCart = (req, res, next) => {
+//   const productId = req.body.productId;
+//   req.customer
+//     .clearCart()
+//     .then((result) => {
+//       if (!result) {
+//         const error = new Error("BAG PRODUCT COULD NOT BE DELETED");
+//         error.statusCode = 500;
+//         throw error;
+//       }
+//       res.status(200).json({ message: "BAG PRODUCT WAS DELETED SUCCESSFULLY" });
+//     })
+//     .catch((error) => next(error));
+// };
 exports.removeCart = (req, res, next) => {
   req.customer
     .clearCart()
     .then((result) => {
       if (!result) {
-        const error = new Error("CART PRODUCTS COULD NOT BE DELETED");
+        const error = new Error("BAG PRODUCTS COULD NOT BE DELETED");
         error.statusCode = 500;
         throw error;
       }
       res
         .status(200)
-        .json({ message: "BAG PRODUCTS WERE CLEARED SUCCESSFULLY" });
+        .json({ message: "BAG PRODUCTS CLEARED SUCCESSFULLY" });
     })
     .catch((error) => next(error));
 };
-exports.makeOrder = (req, res, next) => {};
+// exports.makeOrder = (req, res, next) => {};
