@@ -28,7 +28,8 @@ exports.postOrder = async (req, res, next) => {
     const order = new Order({
       "customer.customerEmail": req.customerEmail,
       "customer.customerId": req.customerId,
-      "customer.customerNumber": req.mobile,
+      "customer.customerNumber": req.customer.mobile,
+      "customer.customerLocation": req.customer.location,
       // Convert products array to objects
       products,
       // SHOP DETAILS
@@ -100,7 +101,12 @@ exports.orderSingleProduct = async (req, res, next) => {
     // console.log(product);
     // products.push(product);
     const order = new Order({
-      customer: { customerId: customerId, customerEmail: customerEmail },
+      customer: {
+        customerId: customerId,
+        customerEmail: customerEmail,
+        customerMobile: req.customer.mobile,
+        customerLocation: req.customer.location,
+      },
       products: [{ product: product, quantity: quantity, amount: amount }],
       //   shop: { email: product.email, shopId: product.shopId },
     });
@@ -142,7 +148,7 @@ exports.getCustomerOrders = async (req, res, next) => {
     //     console.log(shopData.mobileNumber);
     //   });
     // });
-    //  const obj = await populateOrders(orders, 
+    //  const obj = await populateOrders(orders,
     //   (newOrders) => {
     //     newOrders.forEach(order => {
     //       console.log('here');
@@ -176,41 +182,41 @@ const populateOrders = async (orders, callback) => {
   let newOrders = [...orders];
   let newOrderObject = {};
   // const newOrdersPromise = new Promise(async (resolve, reject) => {
-    orders.forEach(async (orderObject) => {
-      newOrderObject.products = [];
-      let copiedProduct = {};
-      await orderObject.products.forEach(async (product) => {
-        copiedProduct = {...product};
-        allPoductsPerOrder = [];
-        const shopEmail = product.product.shop.email;
-        const shopData = await Shop.findOne({ email: shopEmail }).sort({
-          _id: -1,
-        });
-        // console.log(shopData.mobileNumber);
-        // console.log(product);
-        shopName = shopData.shopName;
-        shopMobileNumber = shopData.mobileNumber;
-        // console.log({ product, shopName, shopMobileNumber });
-        const newModifiedProduct = { product, shopName, shopMobileNumber };
-        // console.log(newModifiedProduct);
-        copiedProduct.product = newModifiedProduct;
-        allPoductsPerOrder.push(copiedProduct);
+  orders.forEach(async (orderObject) => {
+    newOrderObject.products = [];
+    let copiedProduct = {};
+    await orderObject.products.forEach(async (product) => {
+      copiedProduct = { ...product };
+      allPoductsPerOrder = [];
+      const shopEmail = product.product.shop.email;
+      const shopData = await Shop.findOne({ email: shopEmail }).sort({
+        _id: -1,
       });
-      newOrderObject.products.push(allPoductsPerOrder);
+      // console.log(shopData.mobileNumber);
+      // console.log(product);
+      shopName = shopData.shopName;
+      shopMobileNumber = shopData.mobileNumber;
+      // console.log({ product, shopName, shopMobileNumber });
+      const newModifiedProduct = { product, shopName, shopMobileNumber };
+      // console.log(newModifiedProduct);
+      copiedProduct.product = newModifiedProduct;
+      allPoductsPerOrder.push(copiedProduct);
     });
-    newOrders.products = newOrderObject.products;
-    console.log(newOrders[0].products[0]);
-    if(newOrders <= 0){
-     return callback([]);
-    }
-    callback[newOrders];
+    newOrderObject.products.push(allPoductsPerOrder);
+  });
+  newOrders.products = newOrderObject.products;
+  console.log(newOrders[0].products[0]);
+  if (newOrders <= 0) {
+    return callback([]);
+  }
+  callback[newOrders];
 
-    // if (newOrders.length <= 0) {
-    //   reject([]);
-    // } else {
-    //   console.log("resolved");
-    //   resolve(newOrders);
-    // }
+  // if (newOrders.length <= 0) {
+  //   reject([]);
+  // } else {
+  //   console.log("resolved");
+  //   resolve(newOrders);
+  // }
   // });
   // console.log(newOrdersPromise)
   // return Promise.all([newOrdersPromise]);
