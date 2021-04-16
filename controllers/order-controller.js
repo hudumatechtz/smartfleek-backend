@@ -107,7 +107,7 @@ exports.orderSingleProduct = async (req, res, next) => {
       customer: {
         customerId: customerId,
         customerEmail: customerEmail,
-        customerMobile: req.customer.mobile,
+        customerNumber: req.customer.mobile,
         customerLocation: req.customer.location,
       },
       products: [{ product: product, quantity: quantity, amount: amount }],
