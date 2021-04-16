@@ -2,6 +2,7 @@ const { Promise } = require("mongoose");
 const Order = require("../models/order");
 const Product = require("../models/product");
 const Shop = require("../models/shop");
+const mongoose = require("mongoose");
 
 exports.postOrder = async (req, res, next) => {
   try {
@@ -75,9 +76,11 @@ exports.getAllOrders = async (req, res, next) => {
         "ORDERS COULD NOT BE RETRIEVED OR NO ORDERS"
       ).statusCode = 500);
     }
-    res
-      .status(201)
-      .json({ message: "ORDERS RETRIEVED SUCCESSFULLY", orders: orders });
+    popOrdersByEmail(orders, email, (newOrders) => {
+      res
+        .status(201)
+        .json({ message: "ORDERS RETRIEVED SUCCESSFULLY", orders: newOrders });
+    });
   } catch (error) {
     next(error);
   }
@@ -138,29 +141,12 @@ exports.getCustomerOrders = async (req, res, next) => {
       err.statusCode = 500;
       throw err;
     }
-    // console.log(orders);
-    // orders.forEach((orderArray) => {
-    //   orderArray.products.forEach(async(product) => {
-    //     const shopEmail = product.product.shop.email;
-    //     let mobileNumber;
-    //     let shapeName;
-    //     const shopData = await Shop.findOne({email: shopEmail}).sort({_id: -1});
-    //     console.log(shopData.mobileNumber);
-    //   });
-    // });
-    //  const obj = await populateOrders(orders,
-    //   (newOrders) => {
-    //     newOrders.forEach(order => {
-    //       console.log('here');
-    //       console.log(order);
-    //     })
-    //   });
     res.status(201).json({ message: "ORDERS OBTAINED", orders: orders });
   } catch (error) {
     next(error);
   }
 };
-
+// *********NOT WORKING CODES*********
 const sendMailToShops = async (emails = new Array()) => {};
 const populateShopDetails = async (orders) => {
   const product = await await orders
@@ -176,6 +162,7 @@ const populateShopDetails = async (orders) => {
     }
   });
 };
+
 const populateOrders = async (orders, callback) => {
   let shopMobileNumber;
   let shopName;
@@ -220,4 +207,36 @@ const populateOrders = async (orders, callback) => {
   // });
   // console.log(newOrdersPromise)
   // return Promise.all([newOrdersPromise]);
+};
+// *******END OF NOT WORKING CODES**********
+const popOrdersByEmail = (orders, email, callback) => {
+  const newOrders = [];
+  orders.forEach((order) => {
+    if (order.products.length == 1) {
+      newOrders.push(order);
+    }
+    if (order.products.length > 1) {
+      // console.log(order.customer);
+      const obj = {
+        customer: order.customer,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        // ...order._id.toString(),
+        _id: order._id,
+        products: [],
+      };
+      const ok = order.products.filter((product) => {
+        if (product.product.shop.email === email) {
+          obj.products.push(product);
+        }
+        return `Ok!`;
+      });
+      newOrders.push({ ...obj });
+    }
+  });
+  if (newOrders.length > 0) {
+    callback(newOrders);
+    return;
+  }
+  callback([]);
 };
