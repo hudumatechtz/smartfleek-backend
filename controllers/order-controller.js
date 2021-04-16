@@ -85,6 +85,22 @@ exports.getAllOrders = async (req, res, next) => {
     next(error);
   }
 };
+exports.getOrdersCount = async (req, res, next) => {
+  const email = req.shopEmail;
+  try {
+    const count = await Order.countDocuments({
+      "products.product.shop.email": email,
+    });
+    if (!(count > 0)) {
+      throw (new Error("NO ORDERS UNDER YOUR SHOP").statusCode = 500);
+    }
+    res
+      .status(201)
+      .json({ message: "YOUR GOT SOME ORDERS CHECK!!", count: count });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.orderSingleProduct = async (req, res, next) => {
   const { productId, quantity } = req.body;
   // console.log(req.body);

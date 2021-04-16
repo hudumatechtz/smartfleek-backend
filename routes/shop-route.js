@@ -23,6 +23,8 @@ router.post("/edit-product", isAuth, shopController.postProductEdit);
 
 router.get("/number-of-products", isAuth, shopController.getNumberOfProducts);
 
+router.get("/number-of-orders", isAuth, orderController.getOrdersCount);
+
 // router.get("/number-of-orders", isAuth, orderController);
 
 router.get("/orders", isAuth, orderController.getAllOrders);
