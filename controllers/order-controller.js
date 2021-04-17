@@ -53,6 +53,7 @@ exports.postOrder = async (req, res, next) => {
   }
 };
 
+// HAS ERRORS
 exports.getLatestOrder = async (req, res, next) => {
   const shopEmail = req.shopEmail;
   try {
@@ -70,7 +71,9 @@ exports.getLatestOrder = async (req, res, next) => {
 exports.getAllOrders = async (req, res, next) => {
   const email = req.shopEmail;
   try {
-    const orders = await Order.find({ "products.product.shop.email": email });
+    const orders = await Order.find({ "products.product.shop.email": email })
+      .sort({ _id: -1 })
+      .limit(20);
     if (!orders) {
       throw (new Error(
         "ORDERS COULD NOT BE RETRIEVED OR NO ORDERS"
