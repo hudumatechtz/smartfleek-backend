@@ -67,6 +67,7 @@ exports.addProduct = (req, res, next) => {
 exports.getShopProducts = (req, res, next) => {
   const shop = req.shop;
   Product.find({ __id: shop.__id })
+    .sort({ _id: -1 })
     .exec()
     .then((products) => {
       if (!products) {

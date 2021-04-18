@@ -134,7 +134,7 @@ app.use((err, req, res, next) => {
     res.status(status).json({ message: message, notSuccess: notSuccess });
   }
   // DISPLAY ERROR MESSAGE DURING DEVELOPMENT
-  // console.log(err);
+  console.log(err);
   next();
 });
 
