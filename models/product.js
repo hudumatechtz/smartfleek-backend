@@ -30,6 +30,11 @@ const productModel = new Schema(
       type: String,
       required: true,
     },
+    status : {
+      type: String,
+      required: false,
+      default: "PENDING",
+    },
     shop: {
       email: {
         type: String,
