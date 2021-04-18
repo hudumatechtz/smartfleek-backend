@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const multer = require("multer");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
@@ -29,7 +28,7 @@ const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 };
-
+const maxSize = 1.5 * 1000;
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/jpeg" ||
@@ -70,9 +69,9 @@ const images = [];
 // MIDDLEWARES
 // app.use(express.urlencoded({extended: false}))
 app.use(compression());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -86,7 +85,9 @@ app.use((req, res, next) => {
 });
 
 app.use(
-  multer({ storage: diskStorage, fileFilter: fileFilter }).single("image")
+  multer({ storage: diskStorage, fileFilter: fileFilter, limits: {
+    fileSize: maxSize
+  }}).single("image")
   // multer({ storage: diskStorage, fileFilter: fileFilter }).array("images", 6)
 );
 // app.use(
