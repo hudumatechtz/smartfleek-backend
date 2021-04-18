@@ -64,70 +64,50 @@ exports.addProduct = (req, res, next) => {
     });
 };
 
-exports.getShopProducts = (req, res, next) => {
-  const shop = req.shop;
-  Product.find({ __id: shop.__id })
-    .sort({ _id: -1 })
-    .exec()
-    .then((products) => {
-      if (!products) {
-        const error = new Error(
-          "Currently there are no products for your shop OR\nfailed to get products"
-        );
-        error.statusCode = 500;
-        throw error;
-      }
-      res.status(201).json({ message: "Products found", products: products });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-exports.addCategory = async (req, res, next) => {
-  // const { category } = req.body;
-  try {
-    const categories = await new Category({
-      categories: categoriesFile,
-    });
-    const savedCategories = await categories.save();
-    if (savedCategories === null) {
-      return res.json({ message: "CATEGORIES NOT SAVED TO THE DATABASE" });
-    }
-    res.status(200).json({ message: "CATEGORIES WERE SAVED TO THE DATABASE" });
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getCategories = async (req, res, next) => {
-  try {
-    const categories = await Category.find({});
-    if (categories == null) {
-      return res
-        .status(200)
-        .json({ message: "CATEGORIES COULD NOT BE FETCHED" });
-    }
-    res
-      .status(201)
-      .json({ message: "CATEGORIES FETCHED", categories: categories });
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getCatalogies = async (req, res, next) => {
-  const category = req.params.category;
-  try {
-    const categories = await Category.find();
-    const catalog = categories[0].categories;
-    res.json(catalog);
-  } catch (error) {
-    next(error);
-  }
-};
+// exports.addCategory = async (req, res, next) => {
+//   // const { category } = req.body;
+//   try {
+//     const categories = await new Category({
+//       categories: categoriesFile,
+//     });
+//     const savedCategories = await categories.save();
+//     if (savedCategories === null) {
+//       return res.json({ message: "CATEGORIES NOT SAVED TO THE DATABASE" });
+//     }
+//     res.status(200).json({ message: "CATEGORIES WERE SAVED TO THE DATABASE" });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+// exports.getCategories = async (req, res, next) => {
+//   try {
+//     const categories = await Category.find({});
+//     if (categories == null) {
+//       return res
+//         .status(200)
+//         .json({ message: "CATEGORIES COULD NOT BE FETCHED" });
+//     }
+//     res
+//       .status(201)
+//       .json({ message: "CATEGORIES FETCHED", categories: categories });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+// exports.getCatalogies = async (req, res, next) => {
+//   const category = req.params.category;
+//   try {
+//     const categories = await Category.find();
+//     const catalog = categories[0].categories;
+//     res.json(catalog);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 exports.getShopProducts = async (req, res, next) => {
   const email = req.shopEmail;
   try {
-    const products = await Product.find({ "shop.email": email });
+    const products = await Product.find({ "shop.email": email }).sort({_id: -1});
     if (products === null) {
       const error = new Error("PRODUCT FETCH FAILED, TRY LATER");
       error.statusCode = 500;
@@ -213,7 +193,7 @@ exports.postProductEdit = async (req, res, next) => {
 exports.deleteProduct = (req, res, next) => {
   const { productId } = req.params;
   Product.findOne({ _id: productId })
-    .sort({ __id: -1 })
+    .sort({ _id: -1 })
     .then((product) => {
       if (!product) {
         throw new Error("Product is not availabe for deletion");

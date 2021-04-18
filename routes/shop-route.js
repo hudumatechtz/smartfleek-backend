@@ -7,11 +7,11 @@ const orderController = require("../controllers/order-controller");
 
 router.post("/add-product", isAuth, shopController.addProduct);
 
-router.patch("/category/add-category", shopController.addCategory);
+// router.patch("/category/add-category", shopController.addCategory);
 
-router.get("/categories", shopController.getCategories);
+// router.get("/categories", shopController.getCategories);
 
-router.get("/catalog/:category", shopController.getCatalogies);
+// router.get("/catalog/:category", shopController.getCatalogies);
 
 router.get("/shop-products", isAuth, shopController.getShopProducts);
 
