@@ -28,7 +28,7 @@ const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 };
-const maxSize = 1.5 * 1000;
+const maxSize = 1.5 * 1000 * 1000;
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/jpeg" ||
