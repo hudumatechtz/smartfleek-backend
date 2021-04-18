@@ -213,14 +213,14 @@ exports.getNumberOfProducts = async (req, res, next) => {
     const count = await Product.countDocuments({
       "shop.email": req.shopEmail,
     });
-    if (!(count > 0)) {
+    if (!(count >= 0)) {
       const error = new Error("NO PRODUCTS UNDER YOUR SHOP");
       error.statusCode = 420;
       throw error;
     }
     res
       .status(201)
-      .json({ message: "PRODUCTs exist under your shop", count: count });
+      .json({ message: "you have PRODUCTs", count: count });
   } catch (error) {
     next(error);
   }

@@ -94,7 +94,7 @@ exports.getOrdersCount = async (req, res, next) => {
     const count = await Order.countDocuments({
       "products.product.shop.email": email,
     });
-    if (!(count > 0)) {
+    if (!(count >= 0)) {
       throw (new Error("NO ORDERS UNDER YOUR SHOP").statusCode = 500);
     }
     res
