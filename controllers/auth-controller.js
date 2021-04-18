@@ -21,8 +21,7 @@ const validatorHelper = (password, hashedPassword, callbak) => {
 };
 
 // SHOP
-exports.postRegister = (req, res, next) => {
-  // console.log(req.body);
+exports.postRegister = async (req, res, next) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const email = req.body.email;
@@ -33,39 +32,36 @@ exports.postRegister = (req, res, next) => {
   const shopLocation = req.body.shopLocation;
   const username = req.body.username;
   const password = req.body.password;
-
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPassword) => {
-      const shop = new Shop({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        mobileNumber: +mobileNumber,
-        shopName: shopName,
-        shopCategory: shopCategory,
-        shopRegion: shopRegion,
-        shopLocation: shopLocation,
-        username: username,
-        password: hashedPassword,
-        registerDate: Date.now(),
-      });
-      return shop.save();
-    })
-    .then((result) => {
-      if (!result) {
-        const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
-        error.statusCode = 500;
-        throw error;
-      }
-      res.status(200).json({ message: "SHOP REGISTERED" });
-    })
-    .catch((err) => {
-      next(err);
-      // res
-      //   .status(500)
-      //   .json({ message: "ERROR OCCURED | COULD NOT BE REGISTERED" });
+  try {
+    const shop = await Shop.findOne({ email: email });
+    if (shop) {
+      const error = new Error("Shop already exist, use a different email");
+      error.statusCode = 401;
+      throw error;
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newShop = new Shop({
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      mobileNumber: +mobileNumber,
+      shopName: shopName,
+      shopCategory: shopCategory,
+      shopRegion: shopRegion,
+      shopLocation: shopLocation,
+      username: username,
+      password: hashedPassword,
     });
+    const savedShop = await newShop.save();
+    if (!savedShop) {
+      const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
+      error.statusCode = 500;
+      throw error;
+    }
+    res.status(200).json({ message: "SHOP REGISTERED" });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // CUSTOMER
@@ -134,12 +130,10 @@ exports.postLogin = (req, res, next) => {
             }
             validatorHelper(password, shopUser.password, (doMatch) => {
               if (!doMatch) {
-                return res
-                  .status(200)
-                  .json({
-                    message: "Either email or password is incorrect",
-                    isLoggedIn: false,
-                  });
+                return res.status(200).json({
+                  message: "Either email or password is incorrect",
+                  isLoggedIn: false,
+                });
               }
               // req.session.shopIsLoggedIn = true;
               // req.session.shop = shopUser;
@@ -172,7 +166,10 @@ exports.postLogin = (req, res, next) => {
         if (!doMatch) {
           return res
             .status(200)
-            .json({ message: "Either email or password is incorrect", isLoggedIn: false});
+            .json({
+              message: "Either email or password is incorrect",
+              isLoggedIn: false,
+            });
         }
         // req.session.customerIsLoggedIn = true;
         // req.session.customer = user;
@@ -200,7 +197,6 @@ exports.postLogin = (req, res, next) => {
       next(err);
     });
 };
-
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
     if (err) {
