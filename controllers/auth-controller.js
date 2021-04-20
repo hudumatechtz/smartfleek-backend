@@ -12,15 +12,10 @@ const URL = process.env.URL;
 const transporter = nodemailer.createTransport({
   host: 'in-v3.mailjet.com',
       port: 587,
-      secure: true,
   auth: {
     user: companyMail.trim(),
     pass: accessor.trim(),
-  },
-  tls: {
-    rejectUnauthorized: false
-  },
-  ignoreTLS: true
+  }
 });
 const validatorHelper = (password, hashedPassword, callbak) => {
   bcrypt
