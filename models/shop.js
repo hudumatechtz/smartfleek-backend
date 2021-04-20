@@ -47,6 +47,13 @@ const shopModel = new Schema({
     type: String,
     required: true,
   },
+  verification: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  verificationToken : String,
+  verificationTokenExpiration : Date,
 }, {timestamps: true});
 
 module.exports = mongoose.model("Shop", shopModel);

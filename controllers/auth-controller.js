@@ -2,8 +2,20 @@ const bcrypt = require("bcryptjs");
 const Shop = require("../models/shop");
 const Customer = require("../models/customer");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 //HELPER METHODS
+const companyMail = process.env.EMAIL;
+const accessor = process.env.PASSWORD;
+const URL = process.env.URL;
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: companyMail.trim(),
+    pass: accessor.trim(),
+  },
+});
 const validatorHelper = (password, hashedPassword, callbak) => {
   bcrypt
     .compare(password, hashedPassword)
@@ -52,13 +64,74 @@ exports.postRegister = async (req, res, next) => {
       username: username,
       password: hashedPassword,
     });
-    const savedShop = await newShop.save();
-    if (!savedShop) {
-      const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
-      error.statusCode = 500;
-      throw error;
+    crypto.randomBytes(256, async (err, buffer) => {
+      if (err) {
+        throw (new Error(
+          "SOMETHIG WENT WRONG WITH VERIFICATION"
+        ).statusCode = 500);
+      }
+      const token = buffer.toString("hex");
+      newShop.verificationToken = token;
+      newShop.verificationTokenExpiration = Date.now() + 3600000;
+      const transportedMail = await transporter.sendMail({
+        from: companyMail,
+        to: email,
+        subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
+        html: `
+          <h3>You rigistered for smartfleek shop services, if NOT then ignore this email!</h3>
+          <p>CLICK THIS <a href="${URL}/account/activation/${token}" style="color:#b80f0a"> LINK </a>
+          TO VERIFY YOUR ACCOUNT
+          </p>
+        `,
+      });
+      if (!transportedMail.messageId) {
+        const error = new Error("ERROR OCCURED | EMAIL NOT SENT | TRY AGAIN");
+        error.statusCode = 500;
+        throw error;
+      }
+      console.log(transportedMail.response);
+      const savedShop = await newShop.save();
+      if (!savedShop) {
+        const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
+        error.statusCode = 500;
+        throw error;
+      }
+      res.status(201).json({
+        message: "AN ACTIVATION LINK WAS SENT TO YOUR EMAIL, CHECK YOUR MAIL BOX",
+      });
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getVerification = async (req, res, next) => {
+  const { token } = req.params;
+  try {
+    const foundShop = await Shop.findOne({
+      verificationToken: token,
+      verificationTokenExpiration: { $gt: Date.now() },
+    });
+    if (!foundShop) {
+      return res.send(
+        "<h2 style='color: red'>ACTIVATION LINK EXPIRED Or NOT FOUND</h2>"
+      );
     }
-    res.status(200).json({ message: "SHOP REGISTERED" });
+    const verifiedShop= foundShop;
+    verifiedShop.verification = true;
+    verifiedShop.verificationToken = undefined;
+    verifiedShop.verificationTokenExpiration = undefined;
+    const verifiedSavedShop = await verifiedShop.save();
+    if(!verifiedSavedShop){
+      return res.send(
+        "<h2 style='color: red'>SHOP NOT ACTIVATED</h2>"
+      );
+    }
+    return res.send(
+      `<h1 style="color: lightblue">SHOP ACTIVATED SUCCESSFULLY</h1>
+        <h2>YOU CAN PRESS THE LOGIN BUTTON TO USE YOUR ACCOUNT</h2>
+        or the <a href="https://smartfleek.web.app/login">Link to login</a>
+      `
+    );
   } catch (error) {
     next(error);
   }
@@ -119,7 +192,7 @@ exports.postLogin = (req, res, next) => {
   Customer.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        Shop.findOne({ email: email })
+        Shop.findOne({ email: email, verification: true })
           .then((shopUser) => {
             if (!shopUser) {
               const error = new Error(
@@ -164,12 +237,10 @@ exports.postLogin = (req, res, next) => {
       }
       validatorHelper(password, user.password, (doMatch) => {
         if (!doMatch) {
-          return res
-            .status(200)
-            .json({
-              message: "Either email or password is incorrect",
-              isLoggedIn: false,
-            });
+          return res.status(200).json({
+            message: "Either email or password is incorrect",
+            isLoggedIn: false,
+          });
         }
         // req.session.customerIsLoggedIn = true;
         // req.session.customer = user;
