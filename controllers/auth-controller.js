@@ -36,7 +36,7 @@ const validatorHelper = (password, hashedPassword, callbak) => {
 exports.postRegister = async (req, res, next) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
-  const email = req.body.email;
+  const email = req.body.email. toLowerCase();
   const mobileNumber = req.body.mobileNumber;
   const shopName = req.body.shopName;
   const shopCategory = req.body.shopCategory;
@@ -47,7 +47,13 @@ exports.postRegister = async (req, res, next) => {
   try {
     const shop = await Shop.findOne({ email: email });
     if (shop) {
-      const error = new Error("Shop already exist, use a different email");
+      const error = new Error("Shop exist, use a other email");
+      error.statusCode = 401;
+      throw error;
+    }
+    const customer = await Customer.findOne({email: email});
+    if (customer) {
+      const error = new Error("email used as customer, use other email");
       error.statusCode = 401;
       throw error;
     }
@@ -84,12 +90,13 @@ exports.postRegister = async (req, res, next) => {
           </p>
         `,
       });
-      if (!transportedMail.messageId) {
+      // console.log(transportedMail);
+      // THIS DOES NOT WORK
+      if (!transportedMail) {
         const error = new Error("ERROR OCCURED | EMAIL NOT SENT | TRY AGAIN");
         error.statusCode = 500;
         throw error;
       }
-      console.log(transportedMail.response);
       const savedShop = await newShop.save();
       if (!savedShop) {
         const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
@@ -138,19 +145,27 @@ exports.getVerification = async (req, res, next) => {
 };
 
 // CUSTOMER
-exports.postCustomerRegister = (req, res, next) => {
-  const email = req.body.email;
+exports.postCustomerRegister = async (req, res, next) => {
+  const email = req.body.email.toLowerCase();
   const password = req.body.password;
   const username = req.body.username;
   const mobile = req.body.mobile;
   Customer.findOne({ email: email })
-    .then((customer) => {
+    .then( async (customer) => {
       if (customer) {
         return res.json({
-          message: "CUSTOMER ALREADY EXIST USE A DIFFERENT EMAIL",
+          message: "CUSTOMER EXIST, USE other EMAIL",
           success: false,
         });
-      } else {
+      } 
+      const shopUser = await Shop.findOne({email: email});
+      if(shopUser){
+        return res.json({
+          message: "EMAIL USED for other services, USE other EMAIL",
+          success: false,
+        }); 
+      }
+      else {
         bcrypt
           .hash(password, 12)
           .then((hashedPassword) => {
@@ -187,7 +202,7 @@ exports.postCustomerRegister = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  const email = req.body.email;
+  const email = req.body.email.toLowerCase();
   const password = req.body.password;
   Customer.findOne({ email: email })
     .then((user) => {
