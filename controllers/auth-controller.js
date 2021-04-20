@@ -36,7 +36,7 @@ const validatorHelper = (password, hashedPassword, callbak) => {
 exports.postRegister = async (req, res, next) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
-  const email = req.body.email. toLowerCase();
+  const email = req.body.email.toLowerCase();
   const mobileNumber = req.body.mobileNumber;
   const shopName = req.body.shopName;
   const shopCategory = req.body.shopCategory;
@@ -51,7 +51,7 @@ exports.postRegister = async (req, res, next) => {
       error.statusCode = 401;
       throw error;
     }
-    const customer = await Customer.findOne({email: email});
+    const customer = await Customer.findOne({ email: email });
     if (customer) {
       const error = new Error("email used as customer, use other email");
       error.statusCode = 401;
@@ -71,41 +71,46 @@ exports.postRegister = async (req, res, next) => {
       password: hashedPassword,
     });
     crypto.randomBytes(256, async (err, buffer) => {
-      if (err) {
-        throw (new Error(
-          "SOMETHIG WENT WRONG WITH VERIFICATION"
-        ).statusCode = 500);
+      try {
+        if (err) {
+          throw (new Error(
+            "SOMETHIG WENT WRONG WITH VERIFICATION"
+          ).statusCode = 500);
+        }
+        const token = buffer.toString("hex");
+        newShop.verificationToken = token;
+        newShop.verificationTokenExpiration = Date.now() + 3600000;
+        const transportedMail = await transporter.sendMail({
+          from: companyMail,
+          to: email,
+          subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
+          html: `
+            <h3>You rigistered for smartfleek shop services, if NOT then ignore this email!</h3>
+            <p>CLICK THIS <a href="${URL}/account/activation/${token}" style="color:#b80f0a"> LINK </a>
+            TO VERIFY YOUR ACCOUNT
+            </p>
+          `,
+        });
+        // console.log(transportedMail);
+        // THIS DOES NOT WORK
+        if (!transportedMail) {
+          const error = new Error("ERROR OCCURED | EMAIL NOT SENT | TRY AGAIN");
+          error.statusCode = 500;
+          throw error;
+        }
+        const savedShop = await newShop.save();
+        if (!savedShop) {
+          const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
+          error.statusCode = 500;
+          throw error;
+        }
+        res.status(201).json({
+          message:
+            "AN ACTIVATION LINK WAS SENT TO YOUR EMAIL, CHECK YOUR MAIL BOX",
+        });
+      } catch (error) {
+        return next(error);
       }
-      const token = buffer.toString("hex");
-      newShop.verificationToken = token;
-      newShop.verificationTokenExpiration = Date.now() + 3600000;
-      const transportedMail = await transporter.sendMail({
-        from: companyMail,
-        to: email,
-        subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
-        html: `
-          <h3>You rigistered for smartfleek shop services, if NOT then ignore this email!</h3>
-          <p>CLICK THIS <a href="${URL}/account/activation/${token}" style="color:#b80f0a"> LINK </a>
-          TO VERIFY YOUR ACCOUNT
-          </p>
-        `,
-      });
-      // console.log(transportedMail);
-      // THIS DOES NOT WORK
-      if (!transportedMail) {
-        const error = new Error("ERROR OCCURED | EMAIL NOT SENT | TRY AGAIN");
-        error.statusCode = 500;
-        throw error;
-      }
-      const savedShop = await newShop.save();
-      if (!savedShop) {
-        const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
-        error.statusCode = 500;
-        throw error;
-      }
-      res.status(201).json({
-        message: "AN ACTIVATION LINK WAS SENT TO YOUR EMAIL, CHECK YOUR MAIL BOX",
-      });
     });
   } catch (error) {
     next(error);
@@ -123,15 +128,13 @@ exports.getVerification = async (req, res, next) => {
         "<h2 style='color: red'>ACTIVATION LINK EXPIRED Or NOT FOUND</h2>"
       );
     }
-    const verifiedShop= foundShop;
+    const verifiedShop = foundShop;
     verifiedShop.verification = true;
     verifiedShop.verificationToken = undefined;
     verifiedShop.verificationTokenExpiration = undefined;
     const verifiedSavedShop = await verifiedShop.save();
-    if(!verifiedSavedShop){
-      return res.send(
-        "<h2 style='color: red'>SHOP NOT ACTIVATED</h2>"
-      );
+    if (!verifiedSavedShop) {
+      return res.send("<h2 style='color: red'>SHOP NOT ACTIVATED</h2>");
     }
     return res.send(
       `<h1 style="color: lightblue">SHOP ACTIVATED SUCCESSFULLY</h1>
@@ -151,21 +154,20 @@ exports.postCustomerRegister = async (req, res, next) => {
   const username = req.body.username;
   const mobile = req.body.mobile;
   Customer.findOne({ email: email })
-    .then( async (customer) => {
+    .then(async (customer) => {
       if (customer) {
         return res.json({
           message: "CUSTOMER EXIST, USE other EMAIL",
           success: false,
         });
-      } 
-      const shopUser = await Shop.findOne({email: email});
-      if(shopUser){
+      }
+      const shopUser = await Shop.findOne({ email: email });
+      if (shopUser) {
         return res.json({
           message: "EMAIL USED for other services, USE other EMAIL",
           success: false,
-        }); 
-      }
-      else {
+        });
+      } else {
         bcrypt
           .hash(password, 12)
           .then((hashedPassword) => {
