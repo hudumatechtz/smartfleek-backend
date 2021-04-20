@@ -17,6 +17,10 @@ const transporter = nodemailer.createTransport({
     user: companyMail.trim(),
     pass: accessor.trim(),
   },
+  tls: {
+    rejectUnauthorized: false
+  },
+  ignoreTLS: true
 });
 const validatorHelper = (password, hashedPassword, callbak) => {
   bcrypt
