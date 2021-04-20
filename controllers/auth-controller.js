@@ -10,7 +10,9 @@ const companyMail = process.env.EMAIL;
 const accessor = process.env.PASSWORD;
 const URL = process.env.URL;
 const transporter = nodemailer.createTransport({
-  service: "icloud",
+  host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
   auth: {
     user: companyMail.trim(),
     pass: accessor.trim(),
