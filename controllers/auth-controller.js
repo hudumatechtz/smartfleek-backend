@@ -10,8 +10,8 @@ const companyMail = process.env.EMAIL;
 const accessor = process.env.PASSWORD;
 const URL = process.env.URL;
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-      port: 465,
+  host: 'in-v3.mailjet.com',
+      port: 587,
       secure: true,
   auth: {
     user: companyMail.trim(),
