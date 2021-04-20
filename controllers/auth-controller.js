@@ -4,6 +4,7 @@ const Customer = require("../models/customer");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const mailjet = require("node-mailjet");
 
 //HELPER METHODS
 const companyMail = process.env.EMAIL;
@@ -33,7 +34,6 @@ const validatorHelper = (password, hashedPassword, callbak) => {
       return callback(false);
     });
 };
-
 // SHOP
 exports.postRegister = async (req, res, next) => {
   const firstName = req.body.firstName;
@@ -82,24 +82,61 @@ exports.postRegister = async (req, res, next) => {
         const token = buffer.toString("hex");
         newShop.verificationToken = token;
         newShop.verificationTokenExpiration = Date.now() + 3600000;
-        const transportedMail = await transporter.sendMail({
-          from: companyMail,
-          to: email,
-          subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
-          html: `
-            <h3>You rigistered for smartfleek shop services, if NOT then ignore this email!</h3>
-            <p>CLICK THIS <a href="${URL}/account/activation/${token}" style="color:#b80f0a"> LINK </a>
-            TO VERIFY YOUR ACCOUNT
-            </p>
-          `,
+        // const transportedMail = await transporter.sendMail({
+        //   from: companyMail,
+        //   to: email,
+        //   subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
+        //   html: `
+        //     <h3>You rigistered for smartfleek shop services, if NOT then ignore this email!</h3>
+        //     <p>CLICK THIS <a href="${URL}/account/activation/${token}" style="color:#b80f0a"> LINK </a>
+        //     TO VERIFY YOUR ACCOUNT
+        //     </p>
+        //   `,
+        // });
+        mailjet.connect(
+          "9a6fce24a45506c6d843169fbce5d385",
+          "90fe62d47537a6a6d09e4c0107e26b00"
+        );
+        const request = mailjet.post("send", { version: "v3.1" }).request({
+          Messages: [
+            {
+              From: {
+                Email: "smartfleekmarket@gmail.com",
+                Name: "Mail and Support",
+              },
+              To: [
+                {
+                  Email: email,
+                  Name: "Shop customer",
+                },
+              ],
+              Subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
+              // TextPart: "My first Mailjet email",
+              HTMLPart:
+                `
+                 <h3>You rigistered for smartfleek shop services, if NOT then ignore this email!</h3>
+                 <p>CLICK THIS <a href="${URL}/account/activation/${token}" style="color:#b80f0a"> LINK </a>
+                   TO VERIFY YOUR ACCOUNT
+                 </p>
+                `,
+              CustomID: "VERIFICATION",
+            },
+          ],
         });
+        request
+          .then((result) => {
+            console.log(result.body);
+          })
+          .catch((err) => {
+            console.log(err.statusCode);
+          });
         // console.log(transportedMail);
         // THIS DOES NOT WORK
-        if (!transportedMail) {
-          const error = new Error("ERROR OCCURED | EMAIL NOT SENT | TRY AGAIN");
-          error.statusCode = 500;
-          throw error;
-        }
+        // if (!transportedMail) {
+        //   const error = new Error("ERROR OCCURED | EMAIL NOT SENT | TRY AGAIN");
+        //   error.statusCode = 500;
+        //   throw error;
+        // }
         const savedShop = await newShop.save();
         if (!savedShop) {
           const error = new Error("ERROR OCCURED | COULD NOT BE REGISTERED");
