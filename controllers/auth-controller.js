@@ -2,26 +2,26 @@ const bcrypt = require("bcryptjs");
 const Shop = require("../models/shop");
 const Customer = require("../models/customer");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const mailjet = require("node-mailjet").connect(
-  "9a6fce24a45506c6d843169fbce5d385",
-  "90fe62d47537a6a6d09e4c0107e26b00"
+  process.env.MAILJET_API,
+  process.env.SECRET_KEY
 );
 
 //HELPER METHODS
 const companyMail = process.env.EMAIL;
 const accessor = process.env.PASSWORD;
 const URL = process.env.URL;
-const transporter = nodemailer.createTransport({
-  host: "in-v3.mailjet.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: companyMail.trim(),
-    pass: accessor.trim(),
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: "in-v3.mailjet.com",
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: companyMail.trim(),
+//     pass: accessor.trim(),
+//   },
+// });
 const validatorHelper = (password, hashedPassword, callbak) => {
   bcrypt
     .compare(password, hashedPassword)
@@ -100,13 +100,13 @@ exports.postRegister = async (req, res, next) => {
           Messages: [
             {
               From: {
-                Email: "smartfleekmarket@gmail.com",
-                Name: "Mail and Support",
+                Email: companyMail,
+                Name: "SMARTFLEEK ONLINE SUPPORT",
               },
               To: [
                 {
                   Email: email,
-                  Name: "Shop customer",
+                  Name: "SHOP CUSTOMER",
                 },
               ],
               Subject: "SMARTFLEEK SHOP ACCOUNT VERIFICATION",
