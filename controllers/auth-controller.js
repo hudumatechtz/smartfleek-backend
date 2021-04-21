@@ -4,7 +4,10 @@ const Customer = require("../models/customer");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const mailjet = require("node-mailjet");
+const mailjet = require("node-mailjet").connect(
+  "9a6fce24a45506c6d843169fbce5d385",
+  "90fe62d47537a6a6d09e4c0107e26b00"
+);
 
 //HELPER METHODS
 const companyMail = process.env.EMAIL;
@@ -93,10 +96,6 @@ exports.postRegister = async (req, res, next) => {
         //     </p>
         //   `,
         // });
-        mailjet.connect(
-          "9a6fce24a45506c6d843169fbce5d385",
-          "90fe62d47537a6a6d09e4c0107e26b00"
-        );
         const request = mailjet.post("send", { version: "v3.1" }).request({
           Messages: [
             {
