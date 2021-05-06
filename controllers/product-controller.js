@@ -75,23 +75,52 @@ exports.removeProductFromCart = async (req, res, next) => {
 exports.searchProduct = async (req, res, next) => {
   const searchQuery = req.params.seach_query;
   try {
-    const regex = new RegExp(searchQuery, "i");
+    let regex = new RegExp(searchQuery, "i");
     const noOfProducts = await Product.estimatedDocumentCount({
       product: { $regex: regex },
     });
     // console.log(noOfProducts);
-    const products = await Product.find({ product: { $regex: regex } })
+    let products = await Product.find({ $or : 
+      [
+        {product: { $regex: regex }},
+        {catalog: {$regex: regex}},
+        {category: {$regex: regex}},
+        {description: {$regex: regex}}
+      ]
+    })
       .sort({ _id: -1 })
-      .limit(25);
+      .limit(35);
     // if(!products){
     //   throw new Error('PRODUCT')
+    // }
+    // if (products.length <= 0) {
+    //   console.log(regex.toString());
+    //   // regex = regex.split(" ")[0];
+    //   products = await Product.find({ product: { $regex: regex } })
+    //     .sort({ _id: -1 })
+    //     .limit(25);
+    // }
+    // if (products.length <= 0) {
+    //   // regex = regex.split(" ")[1];
+
+    //   products = await Product.find({ product: { $regex: regex } })
+    //     .sort({ _id: -1 })
+    //     .limit(25);
+    // }
+    // // RETRIEVE BY CATEGORY
+    // if (products.length <= 0) {
+    //   // regex = regex.split(" ")[0];
+    //   products = await Product.find({ catalog: { $regex: regex } });
+    // }
+    // if (products.length <= 0) {
+    //   // regex = regex.split(" ")[0];
+    //   products = await Product.find({ category: { $regex: regex } });
     // }
     if (products.length <= 0) {
       return res.status(200).json({
         message: "PRODUCTS ARE NOT AVAILABLE CURRENTLY",
       });
     }
-
     res
       .status(201)
       .json({ message: "PRODUCT(S) IS/ARE AVAILABLE", products: products });
