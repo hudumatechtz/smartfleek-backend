@@ -20,7 +20,10 @@ exports.getProducts = (req, res, next) => {
     .catch((err) => next(err));
 };
 exports.getProduct = (req, res, next) => {
-  let id = req.params.id;
+  const param = req.params.id;
+  const ObjectId = require('mongoose').Types.ObjectId; 
+
+  const id = new ObjectId( (param.length < 24) ? "123456789012123456789012" : param ); 
   // let hex = /[0-9A-Fa-f]{6}/g;
   // id = (hex.test(id))? ObjectId(id) : id;
   // console.log(id);
@@ -29,7 +32,7 @@ exports.getProduct = (req, res, next) => {
     .sort({ _id: -1 })
     .then((product) => {
       if (!product) {
-        const error = new Error("PRODUCT FAILED TO FETCH");
+        const error = new Error("PRODUCT FETCH FAILED");
         error.statusCode = 503;
         throw error;
       }
